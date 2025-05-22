@@ -11,20 +11,22 @@ datasource db {
 // Coloque as entidades aqui
 
 model Funcionario {
-  id_funcionario Int     @id @default(autoincrement())
-  id_perfil      Int
-  nome           String
-  email          String   @unique
-  senha          String   // campo será usado só no banco, não nos DTOs
-  telefone       String
-  status         Boolean
+  @@map("FUNCIONARIO")
+  id_funcionario Int      @id @default(autoincrement())
+  id_perfil      Int      @map("ID_PERFIL")
+  nome           String   @db.VarChar(250) @map("NOME")
+  email          String   @unique @db.VarChar(60) @map("EMAIL")
+  senha          String   @db.VarChar(100) @map("SENHA")
+  telefone       String   @db.VarChar(15) @map("TELEFONE")
+  status         Boolean  @db.TinyInt @map("STATUS")
 
   perfil Perfil @relation(fields: [id_perfil], references: [id_perfil])
 }
 
 model Perfil {
-  id_perfil      Int     @id
-  nome           String
+  @@map("PERFIL")
+  id_perfil      Int      @id @default(autoincrement()) @map("ID_PERFIL")
+  nome           String   @db.VarChar(300) @map("NOME")
 
   funcionarios Funcionario[]
 }

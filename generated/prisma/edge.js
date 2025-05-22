@@ -92,9 +92,41 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.FuncionarioScalarFieldEnum = {
+  id_funcionario: 'id_funcionario',
+  id_perfil: 'id_perfil',
+  nome: 'nome',
+  email: 'email',
+  senha: 'senha',
+  telefone: 'telefone',
+  status: 'status'
+};
+
+exports.Prisma.PerfilScalarFieldEnum = {
+  id_perfil: 'id_perfil',
+  nome: 'nome'
+};
+
+exports.Prisma.SortOrder = {
+  asc: 'asc',
+  desc: 'desc'
+};
+
+exports.Prisma.FuncionarioOrderByRelevanceFieldEnum = {
+  nome: 'nome',
+  email: 'email',
+  senha: 'senha',
+  telefone: 'telefone'
+};
+
+exports.Prisma.PerfilOrderByRelevanceFieldEnum = {
+  nome: 'nome'
+};
+
 
 exports.Prisma.ModelName = {
-
+  Funcionario: 'Funcionario',
+  Perfil: 'Perfil'
 };
 /**
  * Create the Client
@@ -107,7 +139,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\andre\\Documents\\0 - Univale\\Projeto Crescer\\backend\\generated\\prisma",
+      "value": "/home/jeiel/Documentos/Trabalhos/Univale/backend/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -116,16 +148,16 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "debian-openssl-3.0.x",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\andre\\Documents\\0 - Univale\\Projeto Crescer\\backend\\prisma\\schema.prisma",
+    "sourceFilePath": "/home/jeiel/Documentos/Trabalhos/Univale/backend/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": "../../.env",
+    "rootEnvPath": null,
     "schemaEnvPath": "../../.env"
   },
   "relativePath": "../../prisma",
@@ -144,13 +176,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\n// Coloque as entidades aqui\n",
-  "inlineSchemaHash": "9697bb3d617283d9b3624bd1177916ba1d23787fea5576ec0b49851cabf8488e",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\n// Coloque as entidades aqui\n\nmodel Funcionario {\n  id_funcionario Int     @id @default(autoincrement())\n  id_perfil      Int     @map(\"ID_PERFIL\")\n  nome           String  @map(\"NOME\") @db.VarChar(250)\n  email          String  @unique @map(\"EMAIL\") @db.VarChar(60)\n  senha          String  @map(\"SENHA\") @db.VarChar(100)\n  telefone       String  @map(\"TELEFONE\") @db.VarChar(15)\n  status         Boolean @map(\"STATUS\") @db.TinyInt\n\n  perfil Perfil @relation(fields: [id_perfil], references: [id_perfil])\n\n  @@map(\"FUNCIONARIO\")\n}\n\nmodel Perfil {\n  id_perfil Int    @id @default(autoincrement()) @map(\"ID_PERFIL\")\n  nome      String @map(\"NOME\") @db.VarChar(300)\n\n  funcionarios Funcionario[]\n\n  @@map(\"PERFIL\")\n}\n",
+  "inlineSchemaHash": "251238f64884f7b5345f7d7ed7211cb6e5581ea748998712873d12c40e621600",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Funcionario\":{\"dbName\":\"FUNCIONARIO\",\"schema\":null,\"fields\":[{\"name\":\"id_funcionario\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"Int\",\"nativeType\":null,\"default\":{\"name\":\"autoincrement\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"id_perfil\",\"dbName\":\"ID_PERFIL\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":true,\"hasDefaultValue\":false,\"type\":\"Int\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"nome\",\"dbName\":\"NOME\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"250\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"email\",\"dbName\":\"EMAIL\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":true,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"60\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"senha\",\"dbName\":\"SENHA\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"100\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"telefone\",\"dbName\":\"TELEFONE\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"15\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"status\",\"dbName\":\"STATUS\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Boolean\",\"nativeType\":[\"TinyInt\",[]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"perfil\",\"kind\":\"object\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Perfil\",\"nativeType\":null,\"relationName\":\"FuncionarioToPerfil\",\"relationFromFields\":[\"id_perfil\"],\"relationToFields\":[\"id_perfil\"],\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false},\"Perfil\":{\"dbName\":\"PERFIL\",\"schema\":null,\"fields\":[{\"name\":\"id_perfil\",\"dbName\":\"ID_PERFIL\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"Int\",\"nativeType\":null,\"default\":{\"name\":\"autoincrement\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"nome\",\"dbName\":\"NOME\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":[\"VarChar\",[\"300\"]],\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"funcionarios\",\"kind\":\"object\",\"isList\":true,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Funcionario\",\"nativeType\":null,\"relationName\":\"FuncionarioToPerfil\",\"relationFromFields\":[],\"relationToFields\":[],\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = undefined
 config.compilerWasm = undefined

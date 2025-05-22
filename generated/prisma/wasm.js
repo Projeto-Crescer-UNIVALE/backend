@@ -120,9 +120,41 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.FuncionarioScalarFieldEnum = {
+  id_funcionario: 'id_funcionario',
+  id_perfil: 'id_perfil',
+  nome: 'nome',
+  email: 'email',
+  senha: 'senha',
+  telefone: 'telefone',
+  status: 'status'
+};
+
+exports.Prisma.PerfilScalarFieldEnum = {
+  id_perfil: 'id_perfil',
+  nome: 'nome'
+};
+
+exports.Prisma.SortOrder = {
+  asc: 'asc',
+  desc: 'desc'
+};
+
+exports.Prisma.FuncionarioOrderByRelevanceFieldEnum = {
+  nome: 'nome',
+  email: 'email',
+  senha: 'senha',
+  telefone: 'telefone'
+};
+
+exports.Prisma.PerfilOrderByRelevanceFieldEnum = {
+  nome: 'nome'
+};
+
 
 exports.Prisma.ModelName = {
-
+  Funcionario: 'Funcionario',
+  Perfil: 'Perfil'
 };
 
 /**

@@ -9,3 +9,26 @@ datasource db {
 }
 
 // Coloque as entidades aqui
+
+model Funcionario {
+  id_funcionario Int     @id @default(autoincrement())
+  id_perfil      Int     @map("ID_PERFIL")
+  nome           String  @map("NOME") @db.VarChar(250)
+  email          String  @unique @map("EMAIL") @db.VarChar(60)
+  senha          String  @map("SENHA") @db.VarChar(100)
+  telefone       String  @map("TELEFONE") @db.VarChar(15)
+  status         Boolean @map("STATUS") @db.TinyInt
+
+  perfil Perfil @relation(fields: [id_perfil], references: [id_perfil])
+
+  @@map("FUNCIONARIO")
+}
+
+model Perfil {
+  id_perfil Int    @id @default(autoincrement()) @map("ID_PERFIL")
+  nome      String @map("NOME") @db.VarChar(300)
+
+  funcionarios Funcionario[]
+
+  @@map("PERFIL")
+}
