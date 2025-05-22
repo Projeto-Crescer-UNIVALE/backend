@@ -9,3 +9,22 @@ datasource db {
 }
 
 // Coloque as entidades aqui
+
+model Funcionario {
+  id_funcionario Int     @id @default(autoincrement())
+  id_perfil      Int
+  nome           String
+  email          String   @unique
+  senha          String   // campo será usado só no banco, não nos DTOs
+  telefone       String
+  status         Boolean
+
+  perfil Perfil @relation(fields: [id_perfil], references: [id_perfil])
+}
+
+model Perfil {
+  id_perfil      Int     @id
+  nome           String
+
+  funcionarios Funcionario[]
+}
