@@ -12,23 +12,23 @@ datasource db {
 
 model Funcionario {
   id_funcionario Int     @id @default(autoincrement())
-  id_perfil      Int     @map("ID_PERFIL")
-  nome           String  @map("NOME") @db.VarChar(250)
-  email          String  @unique @map("EMAIL") @db.VarChar(60)
-  senha          String  @map("SENHA") @db.VarChar(100)
-  telefone       String  @map("TELEFONE") @db.VarChar(15)
-  status         Boolean @map("STATUS") @db.TinyInt
+  id_perfil      Int     @map("id_perfil")
+  nome           String  @map("nome") @db.VarChar(250)
+  email          String  @unique @map("email") @db.VarChar(60)
+  senha          String  @map("senha") @db.VarChar(100)
+  telefone       String  @map("telefone") @db.VarChar(15)
+  status         Boolean @map("status") @db.TinyInt
 
   perfil Perfil @relation(fields: [id_perfil], references: [id_perfil])
 
-  @@map("FUNCIONARIO")
+  @@map("funcionario")
 }
 
 model Perfil {
-  id_perfil Int    @id @default(autoincrement()) @map("ID_PERFIL")
-  nome      String @map("NOME") @db.VarChar(300)
+  id_perfil Int    @id @default(autoincrement()) @map("id_perfil")
+  nome      String @map("nome") @db.VarChar(300)
 
   funcionarios Funcionario[]
 
-  @@map("PERFIL")
+  @@map("perfil")
 }
