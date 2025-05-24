@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateFuncionarioDto } from './create-funcionario.dto';
 import { IsInt, IsOptional, IsString, Length, IsEmail } from 'class-validator';
