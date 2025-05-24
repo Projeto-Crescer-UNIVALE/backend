@@ -71,12 +71,6 @@ export class PerfilService {
     });
   }
 
-  /**
-   * Remove um perfil pelo seu ID.
-   * @param id_perfil O ID do perfil a ser removido.
-   * @returns O perfil removido.
-   * @throws NotFoundException se o perfil não for encontrado.
-   */
   async remove(id_perfil: number): Promise<Perfil> {
     // Verifica se o perfil existe antes de tentar remover
     await this.findOne(id_perfil);

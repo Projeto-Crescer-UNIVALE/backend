@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsDate,
   IsNotEmpty,
   IsNumber,
@@ -84,4 +85,8 @@ export class CreateAlunoDto {
   @Length(1, 200, { message: 'Deve ter entre 1 e 200 caracteres.' })
   @IsOptional()
   medicamentos?: string;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  status: boolean;
 }
