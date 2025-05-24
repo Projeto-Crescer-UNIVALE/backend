@@ -30,3 +30,25 @@ model Perfil {
 
   funcionarios Funcionario[]
 }
+
+model Aluno {
+  @@map("aluno")
+  id_aluno Int @id @default(autoincrement())
+  nome String @db.VarChar(250) @map("nome")
+  data_nascimento DateTime @db.Date @map("data_nascimento")
+  cpf String @db.VarChar(11) @unique @map("cpf")
+  rg String @db.VarChar(11) @unique @map("rg")
+  nis String @db.VarChar(11) @unique @map("nis")
+  cep String @db.VarChar(11) @map("cep")
+  bairro String @db.VarChar(30) @map("bairro")
+  rua String @db.VarChar(80) @map("rua")
+  numero_casa String @db.VarChar(5) @map("numero_casa")
+  nome_mae String @db.VarChar(250) @map("nome_mae")
+  telefone String@db.VarChar(15) @map("telefone")
+  grupo_scfv Int @map("grupo_scfv")
+  situacao_escolar Int @map("situacao_escolar")
+  alergias String @db.VarChar(100) @map("alergias")
+  necessidades_especiais String @db.VarChar(120) @map("necessidades_especiais")
+  medicamentos String @db.VarChar(200) @map("medicamentos")
+  status Boolean @db.TinyInt @map("status")
+}
