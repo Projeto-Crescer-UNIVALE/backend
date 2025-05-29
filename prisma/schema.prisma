@@ -18,7 +18,7 @@ model Funcionario {
   email          String   @unique @db.VarChar(60) @map("email")
   senha          String   @db.VarChar(100) @map("senha")
   telefone       String   @db.VarChar(15) @map("telefone")
-  status         Boolean  @db.TinyInt @map("status")
+  ativo          Boolean  @map("status")
 
   perfil Perfil @relation(fields: [id_perfil], references: [id_perfil])
 }
