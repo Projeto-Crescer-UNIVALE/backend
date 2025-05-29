@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   ConflictException,
   Injectable,
@@ -10,7 +8,7 @@ import { PrismaService } from 'src/prisma.service';
 import { Funcionario } from './entities/funcionario.entity';
 
 @Injectable()
-export class FuncionariosService {
+export class FuncionarioService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(
@@ -65,35 +63,25 @@ export class FuncionariosService {
     // Se o e-mail estiver sendo atualizado, verifica se já está em uso por outro funcionário
     if (updateFuncionarioDto.email) {
       const existingFuncionario = await this.prisma.funcionario.findUnique({
-        where: { email: updateFuncionarioDto.email },
+        where: {
+          email: updateFuncionarioDto.email,
+          AND: {
+            id_funcionario: { not: id_funcionario },
+          },
+        },
       });
 
-      if (
-        existingFuncionario &&
-        existingFuncionario.id_funcionario !== id_funcionario
-      ) {
+      if (existingFuncionario) {
         throw new ConflictException(
           'Este e-mail já está em uso por outro funcionário.',
         );
       }
     }
 
-    // Prepara os dados para atualização, tratando a relação 'perfil' separadamente
-    const dataToUpdate: any = { ...updateFuncionarioDto };
-
-    // Se id_perfil for fornecido no DTO de atualização, significa que o perfil associado será alterado
-    if (updateFuncionarioDto.id_perfil !== undefined) {
-      dataToUpdate.perfil = {
-        connect: { id_perfil: updateFuncionarioDto.id_perfil },
-      };
-      // Remove id_perfil do objeto principal, pois ele é tratado pela relação
-      delete dataToUpdate.id_perfil;
-    }
-
     // Atualiza o funcionário no banco de dados
     return this.prisma.funcionario.update({
       where: { id_funcionario },
-      data: dataToUpdate,
+      data: updateFuncionarioDto,
     });
   }
 

@@ -8,12 +8,12 @@ import {
   ParseIntPipe,
   Put,
 } from '@nestjs/common';
-import { FuncionariosService } from './funcionario.service';
+import { FuncionarioService } from './funcionario.service';
 import { CreateFuncionarioDto } from './dto/create-funcionario.dto';
 
 @Controller('funcionarios')
-export class FuncionariosController {
-  constructor(private readonly funcionariosService: FuncionariosService) {}
+export class FuncionarioController {
+  constructor(private readonly funcionariosService: FuncionarioService) {}
 
   @Post()
   create(@Body() dto: CreateFuncionarioDto) {
