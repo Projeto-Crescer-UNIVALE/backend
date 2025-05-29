@@ -88,5 +88,5 @@ export class CreateAlunoDto {
 
   @IsBoolean()
   @IsNotEmpty()
-  status: boolean;
+  ativo: boolean;
 }

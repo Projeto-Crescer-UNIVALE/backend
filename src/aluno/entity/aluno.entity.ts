@@ -16,5 +16,5 @@ export class Aluno {
   alergias?: string | null;
   necessidades_especiais?: string | null;
   medicamentos?: string | null;
-  status: boolean;
+  ativo: boolean;
 }
