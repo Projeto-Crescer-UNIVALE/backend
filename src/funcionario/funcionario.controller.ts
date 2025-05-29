@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { FuncionariosService } from './funcionario.service';
 import { CreateFuncionarioDto } from './dto/create-funcionario.dto';
@@ -26,8 +27,8 @@ export class FuncionariosController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.funcionariosService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.funcionariosService.findOne(id);
   }
 
   // @Get('buscar/nome/:nome')
@@ -36,12 +37,15 @@ export class FuncionariosController {
   // }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateFuncionarioDto) {
-    return this.funcionariosService.update(+id, dto);
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateFuncionarioDto,
+  ) {
+    return this.funcionariosService.update(id, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.funcionariosService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.funcionariosService.remove(id);
   }
 }
