@@ -3,14 +3,13 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   ParseIntPipe,
+  Put,
 } from '@nestjs/common';
 import { FuncionariosService } from './funcionario.service';
 import { CreateFuncionarioDto } from './dto/create-funcionario.dto';
-import { UpdateFuncionarioDto } from './dto/update-funcionario.dto';
 
 @Controller('funcionarios')
 export class FuncionariosController {
@@ -36,10 +35,10 @@ export class FuncionariosController {
   //   return this.funcionariosService.findByNome(nome);
   // }
 
-  @Patch(':id')
+  @Put(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateFuncionarioDto,
+    @Body() dto: CreateFuncionarioDto,
   ) {
     return this.funcionariosService.update(id, dto);
   }

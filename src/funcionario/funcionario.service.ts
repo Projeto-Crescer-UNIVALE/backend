@@ -6,7 +6,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateFuncionarioDto } from './dto/create-funcionario.dto';
-import { UpdateFuncionarioDto } from './dto/update-funcionario.dto';
 import { PrismaService } from 'src/prisma.service';
 import { Funcionario } from './entities/funcionario.entity';
 
@@ -58,7 +57,7 @@ export class FuncionariosService {
 
   async update(
     id_funcionario: number,
-    updateFuncionarioDto: UpdateFuncionarioDto,
+    updateFuncionarioDto: CreateFuncionarioDto,
   ): Promise<Funcionario> {
     // Verifica se o funcionário existe
     await this.findOne(id_funcionario);
