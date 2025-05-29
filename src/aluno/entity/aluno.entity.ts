@@ -13,8 +13,8 @@ export class Aluno {
   telefone: string;
   grupo_scfv: number;
   situacao_escolar: number;
-  alergias?: string;
-  necessidades_especiais?: string;
-  medicamentos?: string;
+  alergias?: string | null;
+  necessidades_especiais?: string | null;
+  medicamentos?: string | null;
   status: boolean;
 }
