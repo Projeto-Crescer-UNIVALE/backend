@@ -61,21 +61,20 @@ export class FuncionarioService {
     await this.findOne(id_funcionario);
 
     // Se o e-mail estiver sendo atualizado, verifica se já está em uso por outro funcionário
-    if (updateFuncionarioDto.email) {
-      const existingFuncionario = await this.prisma.funcionario.findUnique({
-        where: {
-          email: updateFuncionarioDto.email,
-          AND: {
-            id_funcionario: { not: id_funcionario },
-          },
-        },
-      });
 
-      if (existingFuncionario) {
-        throw new ConflictException(
-          'Este e-mail já está em uso por outro funcionário.',
-        );
-      }
+    const existingFuncionario = await this.prisma.funcionario.findUnique({
+      where: {
+        email: updateFuncionarioDto.email,
+        AND: {
+          id_funcionario: { not: id_funcionario },
+        },
+      },
+    });
+
+    if (existingFuncionario) {
+      throw new ConflictException(
+        'Este e-mail já está em uso por outro funcionário.',
+      );
     }
 
     // Atualiza o funcionário no banco de dados
