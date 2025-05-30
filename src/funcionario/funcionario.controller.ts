@@ -11,7 +11,7 @@ import {
 import { FuncionarioService } from './funcionario.service';
 import { CreateFuncionarioDto } from './dto/create-funcionario.dto';
 
-@Controller('funcionarios')
+@Controller('funcionario')
 export class FuncionarioController {
   constructor(private readonly funcionariosService: FuncionarioService) {}
 
