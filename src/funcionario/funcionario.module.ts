@@ -7,4 +7,4 @@ import { PrismaService } from 'src/prisma.service';
   controllers: [FuncionarioController],
   providers: [FuncionarioService, PrismaService],
 })
-export class FuncionariosModule {}
+export class FuncionarioModule {}
