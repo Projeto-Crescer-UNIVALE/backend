@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import {
   IsString,
   IsEmail,
@@ -33,7 +32,7 @@ export class CreateFuncionarioDto {
 
   @IsBoolean()
   @IsNotEmpty()
-  status: boolean;
+  ativo: boolean;
 
   @IsInt()
   @IsNotEmpty()
