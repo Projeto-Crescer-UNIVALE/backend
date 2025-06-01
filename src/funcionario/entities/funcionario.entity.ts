@@ -5,5 +5,5 @@ export class Funcionario {
   email: string;
   senha: string;
   telefone: string;
-  status: boolean;
+  ativo: boolean;
 }

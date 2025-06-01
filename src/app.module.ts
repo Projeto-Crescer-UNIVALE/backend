@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
-import { FuncionariosModule } from './funcionario/funcionario.module';
+import { FuncionarioModule } from './funcionario/funcionario.module';
 import { PerfilModule } from './perfil/perfil.module';
 
 @Module({
@@ -10,7 +10,7 @@ import { PerfilModule } from './perfil/perfil.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    FuncionariosModule,
+    FuncionarioModule,
     PerfilModule,
   ],
   controllers: [AppController],

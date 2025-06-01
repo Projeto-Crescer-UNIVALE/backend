@@ -21,13 +21,14 @@ export class FuncionarioService {
     if (existeFuncionario) {
       throw new ConflictException('Já existe um funcionário com este e-mail.');
     }
+
     return this.prisma.funcionario.create({
       data: {
         nome: criarFuncionarioDto.nome,
         email: criarFuncionarioDto.email,
         senha: criarFuncionarioDto.senha,
         telefone: criarFuncionarioDto.telefone,
-        status: criarFuncionarioDto.status,
+        ativo: criarFuncionarioDto.ativo,
         // Conecta o funcionário a um perfil existente usando o id_perfil fornecido
         perfil: {
           connect: { id_perfil: criarFuncionarioDto.id_perfil },
