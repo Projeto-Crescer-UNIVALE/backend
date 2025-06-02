@@ -23,9 +23,9 @@ model Aluno {
   telefone               String   @map("telefone") @db.VarChar(15)
   grupo_scfv             Int      @map("grupo_scfv")
   situacao_escolar       Int      @map("situacao_escolar")
-  alergias               String?  @map("alergias") @db.VarChar(100)
-  necessidades_especiais String?  @map("necessidades_especiais") @db.VarChar(120)
-  medicamentos           String?  @map("medicamentos") @db.VarChar(200)
-  ativo                  Boolean  @map("status")
+  alergias               String?  @map("alergias") @db.VarChar(100) // Ver depois se vai aumentar
+  necessidades_especiais String?  @map("necessidades_especiais") @db.VarChar(120) // Ver depois se vai aumentar
+  medicamentos           String?  @map("medicamentos") @db.VarChar(200) // Ver depois se vai aumentar
+  ativo                  Boolean  @map("ativo")
   @@map("aluno")
 }
