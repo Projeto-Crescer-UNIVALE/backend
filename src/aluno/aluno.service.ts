@@ -61,7 +61,6 @@ export class AlunoService {
 
     const dataToUpdate: any = {
       ...updateAlunoDTo,
-      data_nascimento: new Date(updateAlunoDTo.data_nascimento),
     };
 
     return this.prisma.aluno.update({

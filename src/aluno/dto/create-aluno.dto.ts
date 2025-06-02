@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsDate,
@@ -16,6 +17,7 @@ export class CreateAlunoDto {
 
   @IsDate()
   @IsNotEmpty()
+  @Type(() => Date)
   data_nascimento: Date;
 
   @IsString()
