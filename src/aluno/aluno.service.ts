@@ -56,9 +56,7 @@ export class AlunoService {
     });
 
     if (existingAlunoWithCpf) {
-      throw new ConflictException(
-        'Um aluno já existe com esse CPF, NIS ou RG"',
-      );
+      throw new ConflictException('Já existe um aluno com esse CPF.');
     }
 
     const dataToUpdate: any = {
