@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsBoolean,
   IsDate,
   IsNotEmpty,
@@ -91,4 +92,9 @@ export class CreateAlunoDto {
   @IsBoolean()
   @IsNotEmpty()
   ativo: boolean;
+
+  @IsOptional()
+  @IsArray()
+  @IsNumber({}, { each: true })
+  programa_social?: number[];
 }
