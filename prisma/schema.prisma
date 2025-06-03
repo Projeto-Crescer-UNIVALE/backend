@@ -15,7 +15,7 @@ model Aluno {
   cpf                    String   @unique @map("cpf") @db.VarChar(11)
   rg                     String   @unique @map("rg") @db.VarChar(11)
   nis                    String   @unique @map("nis") @db.VarChar(11)
-  cep                    String   @map("cep") @db.VarChar(11)
+  cep                    String   @map("cep") @db.VarChar(8)
   bairro                 String   @map("bairro") @db.VarChar(30)
   rua                    String   @map("rua") @db.VarChar(80)
   numero_casa            String   @map("numero_casa") @db.VarChar(5)
@@ -27,5 +27,28 @@ model Aluno {
   necessidades_especiais String?  @map("necessidades_especiais") @db.VarChar(120) // Ver depois se vai aumentar
   medicamentos           String?  @map("medicamentos") @db.VarChar(200) // Ver depois se vai aumentar
   ativo                  Boolean  @map("ativo")
+
+  programaSocial         AlunoProgramaSocial[]
+
   @@map("aluno")
+}
+
+model ProgramaSocial {
+  id_programa_social Int @id @default(autoincrement())
+  nome               String @map("nome") @db.VarChar(300)
+
+  alunos             AlunoProgramaSocial[]
+
+  @@map("programa_social")
+}
+
+model AlunoProgramaSocial {
+  id_aluno_programa_social Int @id @default(autoincrement())
+  id_aluno                 Int @map("id_aluno")
+  id_programa_social       Int @map("id_programa_social")
+
+  aluno                    Aluno @relation(fields: [id_aluno], references: [id_aluno])
+  programaSocial           ProgramaSocial @relation(fields: [id_programa_social], references: [id_programa_social])
+
+  @@map("aluno_programa_social")
 }
