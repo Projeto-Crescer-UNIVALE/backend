@@ -12,7 +12,7 @@ export class AlunoService {
   constructor(private prisma: PrismaService) {}
 
   async create(criarAlunoDto: CreateAlunoDto): Promise<Aluno> {
-    const { programa_social, ...alunoData } = criarAlunoDto;
+    const { programaSocial, ...alunoData } = criarAlunoDto;
 
     const existeAluno = await this.prisma.aluno.findUnique({
       where: { cpf: criarAlunoDto.cpf },
@@ -26,9 +26,9 @@ export class AlunoService {
       data: {
         ...alunoData,
         programaSocial:
-          programa_social && programa_social.length > 0
+          programaSocial && programaSocial.length > 0
             ? {
-                create: programa_social.map((id_programa_social) => ({
+                create: programaSocial.map((id_programa_social) => ({
                   programaSocial: {
                     connect: { id_programa_social },
                   },
@@ -76,7 +76,7 @@ export class AlunoService {
   ): Promise<Aluno> {
     await this.findOne(id_aluno);
 
-    const { programa_social, ...alunoData } = updateAlunoDTo;
+    const { programaSocial, ...alunoData } = updateAlunoDTo;
 
     const existingAlunoWithCpf = await this.prisma.aluno.findUnique({
       where: {
@@ -96,9 +96,9 @@ export class AlunoService {
       data: {
         ...alunoData,
         programaSocial:
-          programa_social && programa_social.length > 0
+          programaSocial && programaSocial.length > 0
             ? {
-                create: programa_social.map((id_programa_social) => ({
+                create: programaSocial.map((id_programa_social) => ({
                   programaSocial: {
                     connect: { id_programa_social },
                   },

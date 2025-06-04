@@ -96,5 +96,5 @@ export class CreateAlunoDto {
   @IsOptional()
   @IsArray()
   @IsNumber({}, { each: true })
-  programa_social?: number[];
+  programaSocial?: number[];
 }
