@@ -45,7 +45,13 @@ export class AlunoService {
   }
 
   async findAll(): Promise<Aluno[]> {
-    return this.prisma.aluno.findMany();
+    return this.prisma.aluno.findMany({
+      include: {
+        programaSocial: {
+          include: { programaSocial: true },
+        },
+      },
+    });
   }
 
   async findOne(id_aluno: number): Promise<Aluno> {
