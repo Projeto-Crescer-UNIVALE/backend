@@ -57,6 +57,11 @@ export class AlunoService {
   async findOne(id_aluno: number): Promise<Aluno> {
     const aluno = await this.prisma.aluno.findUnique({
       where: { id_aluno },
+      include: {
+        programaSocial: {
+          include: { programaSocial: true },
+        },
+      },
     });
 
     if (!aluno) {
