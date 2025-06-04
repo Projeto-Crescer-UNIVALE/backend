@@ -76,6 +76,8 @@ export class AlunoService {
   ): Promise<Aluno> {
     await this.findOne(id_aluno);
 
+    const { programa_social, ...alunoData } = updateAlunoDTo;
+
     const existingAlunoWithCpf = await this.prisma.aluno.findUnique({
       where: {
         cpf: updateAlunoDTo.cpf,
@@ -89,13 +91,26 @@ export class AlunoService {
       throw new ConflictException('Já existe um aluno com esse CPF.');
     }
 
-    const dataToUpdate: any = {
-      ...updateAlunoDTo,
-    };
-
     return this.prisma.aluno.update({
       where: { id_aluno: id_aluno },
-      data: dataToUpdate,
+      data: {
+        ...alunoData,
+        programaSocial:
+          programa_social && programa_social.length > 0
+            ? {
+                create: programa_social.map((id_programa_social) => ({
+                  programaSocial: {
+                    connect: { id_programa_social },
+                  },
+                })),
+              }
+            : undefined,
+      },
+      include: {
+        programaSocial: {
+          include: { programaSocial: true },
+        },
+      },
     });
   }
 
