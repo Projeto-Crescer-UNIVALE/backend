@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { AlunoModule } from './aluno/aluno.module';
 import { ProgramaSocialModule } from './programa_social/programa-social.module';
+import { ProgramasModule } from './programas/programas.module';
+import { PrismaService } from './prisma.service';
 
 @Module({
   imports: [
@@ -12,8 +14,9 @@ import { ProgramaSocialModule } from './programa_social/programa-social.module';
     }),
     AlunoModule,
     ProgramaSocialModule,
+    ProgramasModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PrismaService],
 })
 export class AppModule {}

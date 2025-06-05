@@ -52,3 +52,8 @@ model AlunoProgramaSocial {
 
   @@map("aluno_programa_social")
 }
+
+model Programa {
+  id_programa Int @id @default(autoincrement())
+  nome        String
+}
