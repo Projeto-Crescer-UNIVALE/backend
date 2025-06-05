@@ -1,9 +1,5 @@
 // src/programa-social/programa-social.service.ts
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateProgramaSocialDto } from './dto/create-programa-social.dto';
 import { ProgramaSocial } from './entity/programa-social.entity';
@@ -37,22 +33,4 @@ export class ProgramaSocialService {
   async findAll(): Promise<ProgramaSocial[]> {
     return this.prisma.programaSocial.findMany();
   }
-
-  async findOne(id_programa_social: number): Promise<ProgramaSocial> {
-    const programa = await this.prisma.programaSocial.findUnique({
-      where: { id_programa_social },
-    });
-    if (!programa) {
-      throw new NotFoundException(
-        `Programa social com ID ${id_programa_social} não encontrado.`,
-      );
-    }
-    return programa;
-  }
-
-  // Método update, se necessário
-  // async update(id: number, dto: UpdateProgramaSocialDto): Promise<ProgramaSocialPrismaType> { ... }
-
-  // Método remove, se necessário
-  // async remove(id: number): Promise<ProgramaSocialPrismaType> { ... }
 }
