@@ -22,26 +22,38 @@ export class AlunoService {
       throw new ConflictException('Já existe um aluno com este CPF.');
     }
 
-    return this.prisma.aluno.create({
+    const novoAluno = await this.prisma.aluno.create({
       data: {
         ...alunoData,
-        programaSocial:
-          programaSocial && programaSocial.length > 0
-            ? {
-                create: programaSocial.map((id_programa_social) => ({
-                  programaSocial: {
-                    connect: { id_programa_social },
-                  },
-                })),
-              }
-            : undefined,
       },
+    });
+
+    if (programaSocial && programaSocial.length > 0) {
+      await this.prisma.alunoProgramaSocial.createMany({
+        data: programaSocial.map((id_programa_social) => ({
+          id_aluno: novoAluno.id_aluno,
+          id_programa_social,
+        })),
+        skipDuplicates: true, // evita erro se a associação já existir
+      });
+    }
+
+    const alunoCriado = await this.prisma.aluno.findUnique({
+      where: { id_aluno: novoAluno.id_aluno },
       include: {
         programaSocial: {
-          include: { programaSocial: true },
+          include: {
+            programaSocial: true,
+          },
         },
       },
     });
+
+    if (!alunoCriado) {
+      throw new NotFoundException('Aluno criado não foi encontrado.');
+    }
+
+    return alunoCriado;
   }
 
   async findAll(): Promise<Aluno[]> {
@@ -91,27 +103,41 @@ export class AlunoService {
       throw new ConflictException('Já existe um aluno com esse CPF.');
     }
 
-    return this.prisma.aluno.update({
-      where: { id_aluno: id_aluno },
-      data: {
-        ...alunoData,
-        programaSocial:
-          programaSocial && programaSocial.length > 0
-            ? {
-                create: programaSocial.map((id_programa_social) => ({
-                  programaSocial: {
-                    connect: { id_programa_social },
-                  },
-                })),
-              }
-            : undefined,
-      },
+    await this.prisma.aluno.update({
+      where: { id_aluno },
+      data: alunoData,
+    });
+
+    await this.prisma.alunoProgramaSocial.deleteMany({
+      where: { id_aluno },
+    });
+
+    if (programaSocial && programaSocial.length > 0) {
+      await this.prisma.alunoProgramaSocial.createMany({
+        data: programaSocial.map((id_programa_social) => ({
+          id_aluno,
+          id_programa_social,
+        })),
+        skipDuplicates: true,
+      });
+    }
+
+    const alunoAtualizado = await this.prisma.aluno.findUnique({
+      where: { id_aluno },
       include: {
         programaSocial: {
           include: { programaSocial: true },
         },
       },
     });
+
+    if (!alunoAtualizado) {
+      throw new NotFoundException(
+        `Aluno com ID ${id_aluno} não encontrado após atualização.`,
+      );
+    }
+
+    return alunoAtualizado;
   }
 
   async remove(id_aluno: number): Promise<Aluno> {
