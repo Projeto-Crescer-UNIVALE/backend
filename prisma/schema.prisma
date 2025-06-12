@@ -9,7 +9,6 @@ datasource db {
 }
 
 // Coloque as entidades aqui
-
 model Funcionario {
   @@map("funcionario")
   id_funcionario Int      @id @default(autoincrement())
@@ -20,13 +19,31 @@ model Funcionario {
   telefone       String   @db.VarChar(15) @map("telefone")
   ativo          Boolean  @map("ativo")
 
-  perfil Perfil @relation(fields: [id_perfil], references: [id_perfil])
+  perfil         Perfil   @relation(fields: [id_perfil], references: [id_perfil])
+  diarios        Diario[] // Relacionamento com Diario
 }
+
 
 model Perfil {
   @@map("perfil")
-  id_perfil      Int      @id @default(autoincrement()) @map("id_perfil")
-  nome           String   @db.VarChar(300) @map("nome")
+  id_perfil      Int          @id @default(autoincrement()) @map("id_perfil")
+  nome           String       @db.VarChar(300) @map("nome")
 
-  funcionarios Funcionario[]
+  funcionarios   Funcionario[]
+}
+
+
+model Diario {
+  @@map("diario")
+
+  id_diario       Int          @id @default(autoincrement()) @map("id_diario")
+  id_aluno        Int          @map("id_aluno")
+  id_oficina      Int          @map("id_oficina")
+  id_funcionario  Int          @map("id_funcionario")
+  conteudo        String       @db.VarChar(300) @map("conteudo")
+  data_criacao    DateTime     @default(now()) @map("data_criacao")
+
+  funcionario     Funcionario  @relation(fields: [id_funcionario], references: [id_funcionario])
+  // aluno        Aluno       @relation(fields: [id_aluno], references: [id_aluno])
+  // oficina      Oficina     @relation(fields: [id_oficina], references: [id_oficina])
 }
