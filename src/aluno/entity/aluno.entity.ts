@@ -19,8 +19,5 @@ export class Aluno {
   necessidades_especiais?: string | null;
   medicamentos?: string | null;
   ativo: boolean;
-  programaSocial?: {
-    id_aluno_programa_social: number;
-    programaSocial: ProgramaSocial;
-  }[];
+  programaSocial?: ProgramaSocial[];
 }

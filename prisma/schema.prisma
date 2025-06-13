@@ -28,7 +28,7 @@ model Aluno {
   medicamentos           String?  @map("medicamentos") @db.VarChar(200) // Ver depois se vai aumentar
   ativo                  Boolean  @map("ativo")
 
-  programaSocial         AlunoProgramaSocial[]
+  programaSocial         ProgramaSocial[]
 
   @@map("aluno")
 }
@@ -37,20 +37,9 @@ model ProgramaSocial {
   id_programa_social Int @id @default(autoincrement())
   nome               String @map("nome") @db.VarChar(300)
 
-  alunos             AlunoProgramaSocial[]
+  alunos             Aluno[]
 
   @@map("programa_social")
-}
-
-model AlunoProgramaSocial {
-  id_aluno_programa_social Int @id @default(autoincrement())
-  id_aluno                 Int @map("id_aluno")
-  id_programa_social       Int @map("id_programa_social")
-
-  aluno                    Aluno @relation(fields: [id_aluno], references: [id_aluno])
-  programaSocial           ProgramaSocial @relation(fields: [id_programa_social], references: [id_programa_social])
-
-  @@map("aluno_programa_social")
 }
 
 model Funcionario {
