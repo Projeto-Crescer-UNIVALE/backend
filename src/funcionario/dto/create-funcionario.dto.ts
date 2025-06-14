@@ -1,40 +1,41 @@
-import {
-  IsString,
-  IsEmail,
-  IsBoolean,
-  MinLength,
-  MaxLength,
-  IsNotEmpty,
-  IsInt,
-} from 'class-validator';
+        // src/funcionario/dto/create-funcionario.dto.ts
+        import {
+          IsBoolean,
+          IsNotEmpty,
+          IsNumber,
+          IsString,
+          Length,
+          IsEmail,
+        } from 'class-validator';
 
-export class CreateFuncionarioDto {
-  @IsString()
-  @MinLength(2)
-  @MaxLength(250)
-  @IsNotEmpty()
-  nome: string;
+        export class CreateFuncionarioDto {
+          @IsNumber()
+          @IsNotEmpty()
+          id_perfil: number;
 
-  @IsEmail()
-  @MaxLength(60)
-  @IsNotEmpty()
-  email: string;
+          @IsString()
+          @Length(2, 250)
+          @IsNotEmpty()
+          nome: string;
 
-  @IsString()
-  @MaxLength(15)
-  telefone: string;
+          @IsString()
+          @IsEmail()
+          @Length(5, 80)
+          @IsNotEmpty()
+          email: string;
 
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(100)
-  @MinLength(8)
-  senha: string;
+          @IsString()
+          @Length(6, 100)
+          @IsNotEmpty()
+          senha: string;
 
-  @IsBoolean()
-  @IsNotEmpty()
-  ativo: boolean;
+          @IsString()
+          @Length(1, 15)
+          @IsNotEmpty()
+          telefone: string;
 
-  @IsInt()
-  @IsNotEmpty()
-  id_perfil: number;
-}
+          @IsBoolean()
+          @IsNotEmpty()
+          status: boolean; // <-- PROPRIEDADE 'STATUS' AQUI!
+        }
+        

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreatePerfilDto } from './dto/create-perfil.dto';
 import { UpdatePerfilDto } from './dto/update-perfil.dto';
-import { PrismaService } from '../prisma.service'; // Importa o PrismaService
+import { PrismaService } from '../prisma/prisma.service'; // Importa o PrismaService
 import { Perfil } from './entities/perfil.entity'; // Importa o tipo Perfil da sua interface
 
 @Injectable()

@@ -1,6 +1,6 @@
 // src/programa-social/programa-social.service.ts
 import { ConflictException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProgramaSocialDto } from './dto/create-programa-social.dto';
 import { ProgramaSocial } from './entity/programa-social.entity';
 

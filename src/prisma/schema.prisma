@@ -1,0 +1,143 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Perfil {
+  id_perfil   Int          @id @default(autoincrement())
+  nome        String       @db.VarChar(300)
+  funcionarios Funcionario[]
+
+  @@map("perfil")
+}
+
+model Funcionario {
+  id_funcionario    Int                 @id @default(autoincrement())
+  id_perfil         Int
+  nome              String              @db.VarChar(250)
+  email             String              @db.VarChar(80)
+  senha             String              @db.VarChar(300)
+  telefone          String              @db.VarChar(15)
+  status            Boolean             @db.TinyInt
+  perfil            Perfil              @relation(fields: [id_perfil], references: [id_perfil])
+  oficinas          Oficina[]
+  funcionario_tokens FuncionarioTokens[]
+
+  @@map("funcionario")
+}
+
+model Token {
+  id_token          Int                 @id @default(autoincrement())
+  valor             String              @db.VarChar(255)
+  tipo              String              @db.VarChar(50)
+  usado_em          DateTime?           @db.DateTime(0)
+  ativo             Boolean             @db.TinyInt
+  funcionario_tokens FuncionarioTokens[]
+
+  @@map("token")
+}
+
+model FuncionarioTokens {
+  id_funcionario_tokens Int         @id @default(autoincrement())
+  id_funcionario        Int
+  id_token              Int
+  funcionario           Funcionario @relation(fields: [id_funcionario], references: [id_funcionario])
+  token                 Token       @relation(fields: [id_token], references: [id_token])
+
+  @@map("funcionario_tokens")
+}
+
+model Sessoes {
+  id_sessoes   Int      @id @default(autoincrement())
+  token        String   @db.VarChar(255)
+  ativo        Boolean  @db.TinyInt
+  data_criacao DateTime @db.DateTime(0)
+
+  @@map("sessoes")
+}
+
+model Aluno {
+  id_aluno             Int                   @id @default(autoincrement())
+  nome                 String                @db.VarChar(250)
+  data_nascimento      DateTime              @db.Date
+  cpf                  String                @unique @db.VarChar(11)
+  rg                   String                @unique @db.VarChar(11)
+  nis                  String                @unique @db.VarChar(11)
+  cep                  String                @db.VarChar(8)
+  bairro               String                @db.VarChar(30)
+  rua                  String                @db.VarChar(80)
+  numero_casa          String                @db.VarChar(5)
+  nome_mae             String                @db.VarChar(250)
+  telefone             String                @db.VarChar(15)
+  grupo_scfv           Int
+  situacao_escolar     Int
+  alergias             String?               @db.VarChar(100)
+  necessidades_especiais String?             @db.VarChar(120)
+  medicamentos         String?               @db.VarChar(200)
+  ativo                Boolean               @db.TinyInt
+  aluno_programas_sociais AlunoProgramasSociais[]
+  diarios              Diario[]
+
+  @@map("aluno")
+}
+
+model ProgramaSocial {
+  id_programa_social Int                     @id @default(autoincrement())
+  nome               String                  @db.VarChar(300)
+  aluno_programas_sociais AlunoProgramasSociais[]
+
+  @@map("programas_sociais")
+}
+
+model AlunoProgramasSociais {
+  id_aluno_programa_social Int           @id @default(autoincrement())
+  id_aluno                 Int
+  id_programa_social       Int
+  aluno                    Aluno         @relation(fields: [id_aluno], references: [id_aluno])
+  programaSocial           ProgramaSocial @relation(fields: [id_programa_social], references: [id_programa_social])
+
+  @@map("aluno_programas_sociais")
+}
+
+model Oficina {
+  id_oficina    Int          @id @default(autoincrement())
+  id_funcionario Int
+  nome          String       @db.VarChar(50) @unique
+  descricao     String       @db.VarChar(300)
+  status        Boolean      @db.TinyInt
+  funcionario   Funcionario  @relation(fields: [id_funcionario], references: [id_funcionario])
+  oficina_dias  OficinaDias[]
+  diarios       Diario[]
+
+  @@map("oficina")
+}
+
+model OficinaDias {
+  id_oficina_dias Int      @id @default(autoincrement())
+  id_oficina      Int
+  dias            Int
+  hora_inicio     DateTime @db.Time(0)
+  hora_fim        DateTime @db.Time(0)
+  oficina         Oficina  @relation(fields: [id_oficina], references: [id_oficina])
+
+  @@map("oficina_dias")
+}
+
+model Diario {
+  id_diario    Int      @id @default(autoincrement())
+  id_aluno     Int
+  id_oficina   Int
+  conteudo     String   @db.VarChar(300)
+  data_criacao DateTime @db.DateTime(0)
+  aluno        Aluno    @relation(fields: [id_aluno], references: [id_aluno])
+  oficina      Oficina  @relation(fields: [id_oficina], references: [id_oficina])
+
+  @@map("diario")
+}
