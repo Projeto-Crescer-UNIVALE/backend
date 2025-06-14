@@ -75,26 +75,22 @@ export class CreateAlunoDto {
   situacao_escolar: number;
 
   @IsString()
-  @Length(1, 100, { message: 'Deve ter entre 1 e 100 caracteres.' })
-  @IsOptional()
-  alergias?: string;
+  @Length(0, 100, { message: 'Deve ter entre 1 e 100 caracteres.' })
+  alergias: string;
 
   @IsString()
-  @Length(1, 120, { message: 'Deve ter entre 1 e 120 caracteres.' })
-  @IsOptional()
-  necessidades_especiais?: string;
+  @Length(0, 120, { message: 'Deve ter entre 1 e 120 caracteres.' })
+  necessidades_especiais: string;
 
   @IsString()
-  @Length(1, 200, { message: 'Deve ter entre 1 e 200 caracteres.' })
-  @IsOptional()
-  medicamentos?: string;
+  @Length(0, 200, { message: 'Deve ter entre 1 e 200 caracteres.' })
+  medicamentos: string;
 
   @IsBoolean()
   @IsNotEmpty()
   ativo: boolean;
 
-  @IsOptional()
   @IsArray()
   @IsNumber({}, { each: true })
-  programaSocial?: number[];
+  programaSocial: number[];
 }
