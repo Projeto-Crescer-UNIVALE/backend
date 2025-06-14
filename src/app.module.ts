@@ -4,6 +4,9 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { FuncionarioModule } from './funcionario/funcionario.module';
 import { PerfilModule } from './perfil/perfil.module';
+import { AlunoModule } from './aluno/aluno.module';
+import { ProgramaSocialModule } from './programa_social/programa-social.module';
+import { PrismaService } from './prisma.service';
 import { DiarioModule } from './diario/diario.module'; 
 
 @Module({
@@ -13,9 +16,11 @@ import { DiarioModule } from './diario/diario.module';
     }),
     FuncionarioModule,
     PerfilModule,
+    AlunoModule,
+    ProgramaSocialModule,
     DiarioModule, 
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PrismaService],
 })
 export class AppModule {}
