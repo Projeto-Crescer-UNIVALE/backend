@@ -8,7 +8,39 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Coloque as entidades aqui
+model Aluno {
+  id_aluno               Int      @id @default(autoincrement())
+  nome                   String   @map("nome") @db.VarChar(250)
+  data_nascimento        DateTime @map("data_nascimento") @db.Date
+  cpf                    String   @unique @map("cpf") @db.VarChar(11)
+  rg                     String   @unique @map("rg") @db.VarChar(11)
+  nis                    String   @unique @map("nis") @db.VarChar(11)
+  cep                    String   @map("cep") @db.VarChar(8)
+  bairro                 String   @map("bairro") @db.VarChar(30)
+  rua                    String   @map("rua") @db.VarChar(80)
+  numero_casa            String   @map("numero_casa") @db.VarChar(5)
+  nome_mae               String   @map("nome_mae") @db.VarChar(250)
+  telefone               String   @map("telefone") @db.VarChar(15)
+  grupo_scfv             Int      @map("grupo_scfv")
+  situacao_escolar       Int      @map("situacao_escolar")
+  alergias               String?  @map("alergias") @db.VarChar(100) // Ver depois se vai aumentar
+  necessidades_especiais String?  @map("necessidades_especiais") @db.VarChar(120) // Ver depois se vai aumentar
+  medicamentos           String?  @map("medicamentos") @db.VarChar(200) // Ver depois se vai aumentar
+  ativo                  Boolean  @map("ativo")
+
+  programaSocial         ProgramaSocial[]
+
+  @@map("aluno")
+}
+
+model ProgramaSocial {
+  id_programa_social Int @id @default(autoincrement())
+  nome               String @map("nome") @db.VarChar(300)
+
+  alunos             Aluno[]
+
+  @@map("programa_social")
+}
 
 model Funcionario {
   @@map("funcionario")
