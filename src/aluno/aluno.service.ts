@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { CreateAlunoDto } from './dto/create-aluno.dto';
 import { PrismaService } from 'src/prisma.service';
-import { Aluno } from './entity/aluno.entity';
+import { Aluno } from 'generated/prisma';
 
 @Injectable()
 export class AlunoService {
