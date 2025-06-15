@@ -53,6 +53,21 @@ model Funcionario {
   ativo          Boolean  @map("ativo")
 
   perfil Perfil @relation(fields: [id_perfil], references: [id_perfil])
+  tokens    Token[]  
+}
+
+model Token {
+  id_token     Int          @id @default(autoincrement())
+  valor        String       @db.VarChar(255) @unique 
+  tipo         String       @db.VarChar(50)
+  usado_em     DateTime?
+  ativo        Boolean      @default(true)
+  funcionarioId Int
+  funcionario  Funcionario  @relation(fields: [funcionarioId], references: [id_funcionario])
+}
+enum TokenTipo {
+  primeiro_acesso
+  redefinicao_senha
 }
 
 model Perfil {
