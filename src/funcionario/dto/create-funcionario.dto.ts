@@ -24,12 +24,6 @@ export class CreateFuncionarioDto {
   @MaxLength(15)
   telefone: string;
 
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(100)
-  @MinLength(8)
-  senha: string;
-
   @IsBoolean()
   @IsNotEmpty()
   ativo: boolean;

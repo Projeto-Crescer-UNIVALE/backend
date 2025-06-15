@@ -7,6 +7,7 @@ import {
   Delete,
   ParseIntPipe,
   Put,
+  BadRequestException,
 } from '@nestjs/common';
 import { FuncionarioService } from './funcionario.service';
 import { CreateFuncionarioDto } from './dto/create-funcionario.dto';
@@ -30,11 +31,6 @@ export class FuncionarioController {
     return this.funcionariosService.findOne(id);
   }
 
-  // @Get('buscar/nome/:nome')
-  // findByNome(@Param('nome') nome: string) {
-  //   return this.funcionariosService.findByNome(nome);
-  // }
-
   @Put(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -46,5 +42,30 @@ export class FuncionarioController {
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.funcionariosService.remove(id);
+  }
+
+  @Get('primeiro-acesso/:token')
+  async validarToken(@Param('token') token: string) {
+    const resultado = await this.funcionariosService.validarTokenPrimeiroAcesso(token);
+
+    if (!resultado.valido) {
+      throw new BadRequestException(resultado.mensagem);
+    }
+
+    return { funcionario: resultado.funcionario };
+  }
+
+  @Post('primeiro-acesso/definir-senha')
+  async definirSenha(
+    @Body('token') token: string,
+    @Body('senha') senha: string,
+  ) {
+    const resultado = await this.funcionariosService.definirSenhaPrimeiroAcesso(token, senha);
+
+    if (!resultado.sucesso) {
+      throw new BadRequestException(resultado.mensagem);
+    }
+
+    return { mensagem: 'Senha definida com sucesso!' };
   }
 }
