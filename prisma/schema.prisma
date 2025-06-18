@@ -53,6 +53,7 @@ model Funcionario {
   ativo          Boolean  @map("ativo")
 
   perfil Perfil @relation(fields: [id_perfil], references: [id_perfil])
+  oficinas Oficina[]
 }
 
 model Perfil {
@@ -61,4 +62,27 @@ model Perfil {
   nome           String   @db.VarChar(300) @map("nome")
 
   funcionarios Funcionario[]
+}
+
+model Oficina {
+  id_oficina    Int          @id @default(autoincrement())
+  id_funcionario Int
+  nome          String       @db.VarChar(50) @unique
+  descricao     String       @db.VarChar(300)
+  status        Boolean      @db.TinyInt
+  funcionario   Funcionario  @relation(fields: [id_funcionario], references: [id_funcionario])
+  cronograma  OficinaCronograma[]
+
+  @@map("oficina")
+}
+
+model OficinaCronograma {
+  id_oficina      Int
+  dia            Int
+  hora_inicio     DateTime @db.Time(0)
+  hora_fim        DateTime @db.Time(0)
+  oficina         Oficina  @relation(fields: [id_oficina], references: [id_oficina])
+
+  @@map("oficina_dias")
+  @@unique([id_oficina, dia])
 }
