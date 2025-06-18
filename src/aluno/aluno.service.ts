@@ -6,12 +6,16 @@ import {
 import { CreateAlunoDto } from './dto/create-aluno.dto';
 import { PrismaService } from 'src/prisma.service';
 import { Aluno } from 'generated/prisma';
+import { TokenPayloadDto } from 'src/auth/dto/token-payload.dto';
 
 @Injectable()
 export class AlunoService {
   constructor(private prisma: PrismaService) {}
 
-  async create(criarAlunoDto: CreateAlunoDto): Promise<Aluno> {
+  async create(
+    criarAlunoDto: CreateAlunoDto,
+    tokenPayload: TokenPayloadDto,
+  ): Promise<Aluno> {
     const existeAluno = await this.prisma.aluno.findUnique({
       where: { cpf: criarAlunoDto.cpf },
     });
