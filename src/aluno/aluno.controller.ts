@@ -11,7 +11,7 @@ import {
 import { AlunoService } from './aluno.service';
 import { CreateAlunoDto } from './dto/create-aluno.dto';
 
-@Controller('aluno')
+@Controller('aluno') // ENDPOINT <------------------
 export class AlunoController {
   constructor(private readonly alunoService: AlunoService) {}
 

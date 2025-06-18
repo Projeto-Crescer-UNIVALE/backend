@@ -7,7 +7,7 @@ import { PerfilModule } from './perfil/perfil.module';
 import { AlunoModule } from './aluno/aluno.module';
 import { ProgramaSocialModule } from './programa_social/programa-social.module';
 import { PrismaService } from './prisma.service';
-import { DiarioModule } from './diario/diario.module'; 
+import { DiarioModule } from './aluno/diario/diario.module'; 
 
 @Module({
   imports: [
