@@ -7,6 +7,7 @@ import { PerfilModule } from './perfil/perfil.module';
 import { AlunoModule } from './aluno/aluno.module';
 import { ProgramaSocialModule } from './programa_social/programa-social.module';
 import { PrismaService } from './prisma.service';
+import { OficinaModule } from './oficina/oficina.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { PrismaService } from './prisma.service';
     PerfilModule,
     AlunoModule,
     ProgramaSocialModule,
+    OficinaModule
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
