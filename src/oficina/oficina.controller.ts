@@ -13,7 +13,7 @@ import {
 import { OficinaService } from './oficina.service';
 import { CreateOficinaDto } from './dto/create-oficina.dto';
 import { UpdateOficinaDto } from './dto/update-oficina.dto';
-import { Oficina } from './entity/oficina.entity'; // Importa a entidade Oficina
+import { Oficina } from 'generated/prisma';
 
 @Controller('oficina') // Define o prefixo da rota para este controlador
 export class OficinaController {
