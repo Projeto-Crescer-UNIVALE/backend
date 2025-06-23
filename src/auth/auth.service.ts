@@ -1,17 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { randomUUID } from 'crypto';
-import { HashingService } from './hashing/hashing.service';
+import { BcryptService } from './hashing/bcrypt.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
-    private readonly hashingService: HashingService,
+    private readonly bcryptService: BcryptService,
   ) {}
 
   async validateUser(loginDto: LoginDto): Promise<LoginResponseDto | null> {
@@ -20,27 +20,18 @@ export class AuthService {
       include: { perfil: true },
     });
 
-    if (!funcionario) return null;
+    if (!funcionario) throw new BadRequestException('Funcionário inválido.');
 
-    const passwordValid = await this.hashingService.compare(
+    const passwordValid = await this.bcryptService.compare(
       loginDto.senha,
       funcionario.senha,
     );
 
-    if (!passwordValid) return null;
+    if (!passwordValid) throw new BadRequestException('Senha inválida.');
 
     const id_sessao = randomUUID();
     const now = new Date();
-    const expiresIn = 60 * 60 * 1; // 1 hora
-
-    await this.prisma.sessao.create({
-      data: {
-        id_sessao,
-        id_funcionario: funcionario.id_funcionario,
-        ativo: true,
-        data_criacao: now,
-      },
-    });
+    const expiresIn = 60 * 60 * 24; // 24 horas
 
     const token = await this.jwtService.signAsync(
       {
@@ -50,9 +41,19 @@ export class AuthService {
       },
       {
         secret: process.env.JWT_SECRET,
-        expiresIn: `${expiresIn}s`,
+        expiresIn: `1 dia`,
       },
     );
+
+    await this.prisma.sessao.create({
+      data: {
+        id_sessao,
+        id_funcionario: funcionario.id_funcionario,
+        ativo: true,
+        data_criacao: now,
+        token,
+      },
+    });
 
     return {
       accessToken: token,

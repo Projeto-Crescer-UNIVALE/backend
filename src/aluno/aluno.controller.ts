@@ -14,6 +14,7 @@ import { CreateAlunoDto } from './dto/create-aluno.dto';
 import { PerfilGuard } from 'src/auth/guard/perfil.guard';
 import { PerfilRequired } from 'src/auth/decorator/perfil.decorator';
 import { Perfil } from 'src/common/perfil.enum';
+import { NotAuth } from 'src/auth/decorator/not-auth.decorator';
 
 @UseGuards(PerfilGuard)
 @Controller('aluno')
@@ -44,6 +45,7 @@ export class AlunoController {
     return this.alunoService.update(id, dto);
   }
 
+  // @NotAuth() // Exemplo de rota que não exigirá autenticação para funcionar.
   @Delete(':id')
   @PerfilRequired(Perfil.ADMINISTRADOR)
   remove(@Param('id', ParseIntPipe) id: number) {

@@ -1,5 +1,4 @@
 import { Global, Module } from '@nestjs/common';
-import { HashingService } from './hashing/hashing.service';
 import { BcryptService } from './hashing/bcrypt.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -7,6 +6,8 @@ import { PrismaService } from 'src/prisma.service';
 import { ConfigModule } from '@nestjs/config';
 import jwtConfig from './config/jwt.config';
 import { JwtModule } from '@nestjs/jwt';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthTokenGuard } from './guard/auth-token.guard';
 
 @Global()
 @Module({
@@ -16,13 +17,14 @@ import { JwtModule } from '@nestjs/jwt';
   ],
   controllers: [AuthController],
   providers: [
-    {
-      provide: HashingService,
-      useClass: BcryptService,
-    },
+    BcryptService,
     AuthService,
     PrismaService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthTokenGuard,
+    },
   ],
-  exports: [HashingService, JwtModule, ConfigModule],
+  exports: [JwtModule, ConfigModule],
 })
 export class AuthModule {}

@@ -67,10 +67,11 @@ model Perfil {
 }
 
 model Sessao {
-  id_sessao         String      @id @map("id_sessao")
-  id_funcionario    Int @map("id_funcionario")
-  ativo             Boolean @map("ativo")
-  data_criacao      DateTime @map("data_criacao")
+  id_sessao      String   @id @map("id_sessao")
+  id_funcionario Int      @map("id_funcionario")
+  ativo          Boolean  @map("ativo")
+  data_criacao   DateTime @map("data_criacao")
+  token          String   @map("token") @default("")
 
   token_funcionario Funcionario @relation(fields: [id_funcionario], references: [id_funcionario])
 
