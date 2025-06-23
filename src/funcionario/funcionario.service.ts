@@ -6,19 +6,19 @@ import {
 import { CreateFuncionarioDto } from './dto/create-funcionario.dto';
 import { PrismaService } from 'src/prisma.service';
 import { Funcionario } from './entities/funcionario.entity';
-import { HashingService } from 'src/auth/hashing/hashing.service';
+import { BcryptService } from 'src/auth/hashing/bcrypt.service';
 
 @Injectable()
 export class FuncionarioService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly hashingService: HashingService,
+    private readonly bcryptService: BcryptService,
   ) {}
 
   async create(
     criarFuncionarioDto: CreateFuncionarioDto,
   ): Promise<Funcionario> {
-    const senhaHash = await this.hashingService.hash(criarFuncionarioDto.senha);
+    const senhaHash = await this.bcryptService.hash(criarFuncionarioDto.senha);
 
     const existeFuncionario = await this.prisma.funcionario.findUnique({
       where: { email: criarFuncionarioDto.email },
@@ -81,7 +81,7 @@ export class FuncionarioService {
     }
 
     if (updateFuncionarioDto?.senha) {
-      const senhaHash = await this.hashingService.hash(
+      const senhaHash = await this.bcryptService.hash(
         updateFuncionarioDto.senha,
       );
 

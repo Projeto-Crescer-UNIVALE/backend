@@ -25,6 +25,6 @@ import { AuthTokenGuard } from './guard/auth-token.guard';
       useClass: AuthTokenGuard,
     },
   ],
-  exports: [JwtModule, ConfigModule],
+  exports: [JwtModule, ConfigModule, BcryptService, PrismaService],
 })
 export class AuthModule {}
