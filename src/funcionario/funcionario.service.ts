@@ -8,6 +8,7 @@ import { PrismaService } from 'src/prisma.service';
 import { Funcionario } from './entities/funcionario.entity';
 import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
+import { randomBytes } from 'node:crypto';
 
 @Injectable()
 export class FuncionarioService {
@@ -24,8 +25,7 @@ export class FuncionarioService {
       throw new ConflictException('Já existe um funcionário com este e-mail.');
     }
 
-    
-    const senhaTemporaria = Math.random().toString(36).slice(-8);
+    const senhaTemporaria = randomBytes(12).toString('hex');
     const senhaHash = await bcrypt.hash(senhaTemporaria, 10);
 
     const novoFuncionario = await this.prisma.funcionario.create({

@@ -44,28 +44,5 @@ export class FuncionarioController {
     return this.funcionariosService.remove(id);
   }
 
-  @Get('primeiro-acesso/:token')
-  async validarToken(@Param('token') token: string) {
-    const resultado = await this.funcionariosService.validarTokenPrimeiroAcesso(token);
 
-    if (!resultado.valido) {
-      throw new BadRequestException(resultado.mensagem);
-    }
-
-    return { funcionario: resultado.funcionario };
-  }
-
-  @Post('primeiro-acesso/definir-senha')
-  async definirSenha(
-    @Body('token') token: string,
-    @Body('senha') senha: string,
-  ) {
-    const resultado = await this.funcionariosService.definirSenhaPrimeiroAcesso(token, senha);
-
-    if (!resultado.sucesso) {
-      throw new BadRequestException(resultado.mensagem);
-    }
-
-    return { mensagem: 'Senha definida com sucesso!' };
-  }
 }
