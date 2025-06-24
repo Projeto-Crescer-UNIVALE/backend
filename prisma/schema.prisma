@@ -23,12 +23,13 @@ model Aluno {
   telefone               String   @map("telefone") @db.VarChar(15)
   grupo_scfv             Int      @map("grupo_scfv")
   situacao_escolar       Int      @map("situacao_escolar")
-  alergias               String?  @map("alergias") @db.VarChar(100) // Ver depois se vai aumentar
-  necessidades_especiais String?  @map("necessidades_especiais") @db.VarChar(120) // Ver depois se vai aumentar
-  medicamentos           String?  @map("medicamentos") @db.VarChar(200) // Ver depois se vai aumentar
+  alergias               String?  @map("alergias") @db.VarChar(100)
+  necessidades_especiais String?  @map("necessidades_especiais") @db.VarChar(120)
+  medicamentos           String?  @map("medicamentos") @db.VarChar(200)
   ativo                  Boolean  @map("ativo")
 
   programaSocial ProgramaSocial[]
+  diarios                Diario[]
 
   @@map("aluno")
 }
@@ -51,10 +52,10 @@ model Funcionario {
   telefone       String  @map("telefone") @db.VarChar(15)
   ativo          Boolean @map("ativo")
 
-  perfil Perfil   @relation(fields: [id_perfil], references: [id_perfil])
-  Sessao Sessao[]
-  oficinas Oficina[]
-
+  perfil         Perfil      @relation(fields: [id_perfil], references: [id_perfil])
+  Sessao         Sessao[]
+  oficinas       Oficina[]
+  diarios        Diario[]
   @@map("funcionario")
 }
 
@@ -80,27 +81,48 @@ model Sessao {
 }
 
 model Oficina {
-  id_oficina    Int          @id @default(autoincrement())
+  id_oficina     Int          @id @default(autoincrement())
   id_funcionario Int
-  nome          String       @db.VarChar(50) @unique
-  descricao     String       @db.VarChar(300)
-  status        Boolean      @db.TinyInt
-  funcionario   Funcionario  @relation(fields: [id_funcionario], references: [id_funcionario])
-  cronograma  OficinaCronograma[]
-  criado_em     DateTime     @default(now())
-  atualizado_em DateTime     @updatedAt
-  excluido_em   DateTime?
+  nome           String       @db.VarChar(50) @unique
+  descricao      String       @db.VarChar(300)
+  status         Boolean      @db.TinyInt
+  funcionario    Funcionario  @relation(fields: [id_funcionario], references: [id_funcionario])
+  cronograma     OficinaCronograma[]
+  criado_em      DateTime     @default(now())
+  atualizado_em  DateTime     @updatedAt
+  excluido_em    DateTime?
+  diarios        Diario[] 
 
   @@map("oficina")
 }
 
 model OficinaCronograma {
-  id_oficina      Int
+  id_oficina     Int
   dia            Int
-  hora_inicio     DateTime @db.Time(0)
-  hora_fim        DateTime @db.Time(0)
-  oficina         Oficina  @relation(fields: [id_oficina], references: [id_oficina], onDelete: Cascade)
+  hora_inicio    DateTime @db.Time(0)
+  hora_fim       DateTime @db.Time(0)
+  oficina        Oficina  @relation(fields: [id_oficina], references: [id_oficina], onDelete: Cascade)
+  
 
   @@map("oficina_dias")
   @@unique([id_oficina, dia], name: "id_oficina_cronograma")
+}
+
+model Diario {
+  @@map("diario")
+
+  id_diario     Int          @id @default(autoincrement()) @map("id_diario")
+  id_aluno      Int          @map("id_aluno")
+  id_oficina    Int?         @map("id_oficina")
+  id_autor      Int          @map("id_autor")
+
+  conteudo      String       @db.VarChar(300) @map("conteudo")
+  
+  criado_em     DateTime     @default(now())       
+  atualizado_em DateTime     @updatedAt            
+  excluido_em   DateTime?                          
+
+  autor         Funcionario  @relation(fields: [id_autor], references: [id_funcionario])
+  aluno         Aluno        @relation(fields: [id_aluno], references: [id_aluno])
+  oficina       Oficina?     @relation(fields: [id_oficina], references: [id_oficina]) //  reativado relacionamento
 }

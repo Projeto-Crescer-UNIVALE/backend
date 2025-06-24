@@ -16,7 +16,7 @@ import { PerfilRequired } from 'src/auth/decorator/perfil.decorator';
 import { Perfil } from 'src/common/perfil.enum';
 import { NotAuth } from 'src/auth/decorator/not-auth.decorator';
 
-@Controller('aluno')
+@Controller('aluno') // ENDPOINT <------------------
 export class AlunoController {
   constructor(private readonly alunoService: AlunoService) {}
 
