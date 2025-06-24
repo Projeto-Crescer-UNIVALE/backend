@@ -1,5 +1,5 @@
 import {
-  Controller, Get, Post, Put, Param, Body, ParseIntPipe,
+  Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe,
 } from '@nestjs/common';
 import { DiarioService } from './diario.service';
 import { CreateDiarioDto } from './dto/create-diario.dto';
@@ -14,7 +14,6 @@ export class DiarioController {
     @Param('idAluno', ParseIntPipe) idAluno: number,
     @Body() dto: CreateDiarioDto
   ) {
-    
     return this.diarioService.create(idAluno, dto);
   }
 
@@ -38,5 +37,13 @@ export class DiarioController {
     @Body() dto: UpdateDiarioDto
   ) {
     return this.diarioService.update(idAluno, id_diario, dto);
+  }
+
+  @Delete(':id')
+  delete(
+    @Param('idAluno', ParseIntPipe) idAluno: number,
+    @Param('id', ParseIntPipe) id_diario: number
+  ) {
+    return this.diarioService.delete(idAluno, id_diario);
   }
 }
