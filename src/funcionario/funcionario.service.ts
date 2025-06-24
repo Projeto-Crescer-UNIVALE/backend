@@ -6,7 +6,6 @@ import {
 import { CreateFuncionarioDto } from './dto/create-funcionario.dto';
 import { PrismaService } from 'src/prisma.service';
 import { Funcionario } from './entities/funcionario.entity';
-import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'node:crypto';
 
@@ -41,7 +40,7 @@ export class FuncionarioService {
       },
     });
 
-    const token = uuidv4();
+    const token = randomUUID();
 
     await this.prisma.token.create({
       data: {
