@@ -140,7 +140,7 @@ export class FuncionarioService {
       return { sucesso: false, mensagem: 'Token inválido ou já utilizado' };
     }
 
-    const senhaHash = await bcrypt.hash(senha, 10);
+    const senhaHash = await this.bcryptService.hash(senha);
 
     await this.prisma.funcionario.update({
       where: { id_funcionario: tokenRegistro.funcionarioId },
