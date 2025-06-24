@@ -7,6 +7,7 @@ import { CreateFuncionarioDto } from './dto/create-funcionario.dto';
 import { PrismaService } from 'src/prisma.service';
 import { Funcionario } from './entities/funcionario.entity';
 import { BcryptService } from 'src/auth/hashing/bcrypt.service';
+import { randomUUID } from 'node:crypto';
 
 @Injectable()
 export class FuncionarioService {
@@ -18,8 +19,7 @@ export class FuncionarioService {
   async create(
     criarFuncionarioDto: CreateFuncionarioDto,
   ): Promise<Funcionario> {
-    const senhaHash = await this.bcryptService.hash(criarFuncionarioDto.senha);
-
+    
     const existeFuncionario = await this.prisma.funcionario.findUnique({
       where: { email: criarFuncionarioDto.email },
     });
@@ -27,8 +27,11 @@ export class FuncionarioService {
     if (existeFuncionario) {
       throw new ConflictException('Já existe um funcionário com este e-mail.');
     }
+    
+    const senhaTemporaria = randomUUID();
+    const senhaHash = await this.bcryptService.hash(senhaTemporaria);
 
-    return this.prisma.funcionario.create({
+    const novoFuncionario = await this.prisma.funcionario.create({
       data: {
         nome: criarFuncionarioDto.nome,
         email: criarFuncionarioDto.email,
@@ -40,6 +43,19 @@ export class FuncionarioService {
         },
       },
     });
+
+    const token = randomUUID();
+
+    await this.prisma.token.create({
+      data: {
+        valor: token, 
+        tipo: 'primeiro_acesso',
+        funcionarioId: novoFuncionario.id_funcionario,
+        
+      },
+    });
+
+    return novoFuncionario;
   }
 
   async findAll() {
@@ -80,14 +96,6 @@ export class FuncionarioService {
       );
     }
 
-    if (updateFuncionarioDto?.senha) {
-      const senhaHash = await this.bcryptService.hash(
-        updateFuncionarioDto.senha,
-      );
-
-      updateFuncionarioDto['senha'] = senhaHash;
-    }
-
     return this.prisma.funcionario.update({
       where: { id_funcionario },
       data: updateFuncionarioDto,
@@ -100,5 +108,50 @@ export class FuncionarioService {
     return this.prisma.funcionario.delete({
       where: { id_funcionario },
     });
+  }
+
+  async validarTokenPrimeiroAcesso(token: string) {
+    const tokenValido = await this.prisma.token.findUnique({
+      where: { valor: token }, 
+      include: { funcionario: true },
+    });
+
+    if (!tokenValido) {
+      return { valido: false, mensagem: 'Token não encontrado' };
+    }
+
+    if (!tokenValido.ativo) {
+      return { valido: false, mensagem: 'Token desativado' };
+    }
+
+    if (tokenValido.usado_em !== null) {
+      return { valido: false, mensagem: 'Token já utilizado' };
+    }
+
+    return { valido: true, funcionario: tokenValido.funcionario };
+  }
+
+  async definirSenhaPrimeiroAcesso(token: string, senha: string) {
+    const tokenRegistro = await this.prisma.token.findUnique({
+      where: { valor: token }, 
+    });
+
+    if (!tokenRegistro || tokenRegistro.usado_em !== null) {
+      return { sucesso: false, mensagem: 'Token inválido ou já utilizado' };
+    }
+
+    const senhaHash = await this.bcryptService.hash(senha);
+
+    await this.prisma.funcionario.update({
+      where: { id_funcionario: tokenRegistro.funcionarioId },
+      data: { senha: senhaHash },
+    });
+
+    await this.prisma.token.update({
+      where: { valor: token }, 
+      data: { usado_em: new Date() }, 
+    });
+
+    return { sucesso: true };
   }
 }

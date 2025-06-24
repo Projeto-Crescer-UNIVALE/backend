@@ -7,6 +7,7 @@ import {
   Delete,
   ParseIntPipe,
   Put,
+  BadRequestException,
 } from '@nestjs/common';
 import { FuncionarioService } from './funcionario.service';
 import { CreateFuncionarioDto } from './dto/create-funcionario.dto';
@@ -30,11 +31,6 @@ export class FuncionarioController {
     return this.funcionariosService.findOne(id);
   }
 
-  // @Get('buscar/nome/:nome')
-  // findByNome(@Param('nome') nome: string) {
-  //   return this.funcionariosService.findByNome(nome);
-  // }
-
   @Put(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -47,4 +43,6 @@ export class FuncionarioController {
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.funcionariosService.remove(id);
   }
+
+
 }
