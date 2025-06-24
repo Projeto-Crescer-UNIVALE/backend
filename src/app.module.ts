@@ -8,6 +8,7 @@ import { AlunoModule } from './aluno/aluno.module';
 import { ProgramaSocialModule } from './programa_social/programa-social.module';
 import { PrismaService } from './prisma.service';
 import { OficinaModule } from './oficina/oficina.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { OficinaModule } from './oficina/oficina.module';
     PerfilModule,
     AlunoModule,
     ProgramaSocialModule,
-    OficinaModule
+    OficinaModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
