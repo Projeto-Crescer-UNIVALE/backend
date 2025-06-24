@@ -6,16 +6,20 @@ import {
 import { CreateFuncionarioDto } from './dto/create-funcionario.dto';
 import { PrismaService } from 'src/prisma.service';
 import { Funcionario } from './entities/funcionario.entity';
-import * as bcrypt from 'bcrypt';
+import { BcryptService } from 'src/auth/hashing/bcrypt.service';
 import { randomUUID } from 'node:crypto';
 
 @Injectable()
 export class FuncionarioService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly bcryptService: BcryptService,
+  ) {}
 
   async create(
     criarFuncionarioDto: CreateFuncionarioDto,
   ): Promise<Funcionario> {
+    
     const existeFuncionario = await this.prisma.funcionario.findUnique({
       where: { email: criarFuncionarioDto.email },
     });
@@ -23,9 +27,9 @@ export class FuncionarioService {
     if (existeFuncionario) {
       throw new ConflictException('Já existe um funcionário com este e-mail.');
     }
-
+    
     const senhaTemporaria = randomUUID();
-    const senhaHash = await bcrypt.hash(senhaTemporaria, 10);
+    const senhaHash = await this.bcryptService.hash(senhaTemporaria);
 
     const novoFuncionario = await this.prisma.funcionario.create({
       data: {
@@ -51,8 +55,6 @@ export class FuncionarioService {
       },
     });
 
-    console.log(`Token de primeiro acesso: ${token}`);
-
     return novoFuncionario;
   }
 
@@ -77,10 +79,8 @@ export class FuncionarioService {
     id_funcionario: number,
     updateFuncionarioDto: CreateFuncionarioDto,
   ): Promise<Funcionario> {
-    
     await this.findOne(id_funcionario);
 
-    
     const existingFuncionario = await this.prisma.funcionario.findUnique({
       where: {
         email: updateFuncionarioDto.email,
@@ -96,7 +96,6 @@ export class FuncionarioService {
       );
     }
 
-   
     return this.prisma.funcionario.update({
       where: { id_funcionario },
       data: updateFuncionarioDto,
@@ -104,10 +103,8 @@ export class FuncionarioService {
   }
 
   async remove(id_funcionario: number): Promise<Funcionario> {
-    
     await this.findOne(id_funcionario);
 
-    
     return this.prisma.funcionario.delete({
       where: { id_funcionario },
     });

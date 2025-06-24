@@ -13,7 +13,7 @@ ALTER TABLE `aluno_programa_social` DROP FOREIGN KEY `aluno_programa_social_id_a
 ALTER TABLE `aluno_programa_social` DROP FOREIGN KEY `aluno_programa_social_id_programa_social_fkey`;
 
 -- AlterTable
-ALTER TABLE `funcionario` DROP COLUMN `status`,
+ALTER TABLE `funcionario` DROP COLUMN `ativo`,
     ADD COLUMN `ativo` BOOLEAN NOT NULL;
 
 -- DropTable

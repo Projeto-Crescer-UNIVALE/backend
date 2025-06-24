@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `sessao` MODIFY `token` MEDIUMTEXT NOT NULL DEFAULT '';
