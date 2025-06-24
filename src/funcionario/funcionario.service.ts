@@ -6,14 +6,20 @@ import {
 import { CreateFuncionarioDto } from './dto/create-funcionario.dto';
 import { PrismaService } from 'src/prisma.service';
 import { Funcionario } from './entities/funcionario.entity';
+import { BcryptService } from 'src/auth/hashing/bcrypt.service';
 
 @Injectable()
 export class FuncionarioService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly bcryptService: BcryptService,
+  ) {}
 
   async create(
     criarFuncionarioDto: CreateFuncionarioDto,
   ): Promise<Funcionario> {
+    const senhaHash = await this.bcryptService.hash(criarFuncionarioDto.senha);
+
     const existeFuncionario = await this.prisma.funcionario.findUnique({
       where: { email: criarFuncionarioDto.email },
     });
@@ -26,10 +32,9 @@ export class FuncionarioService {
       data: {
         nome: criarFuncionarioDto.nome,
         email: criarFuncionarioDto.email,
-        senha: criarFuncionarioDto.senha,
+        senha: senhaHash,
         telefone: criarFuncionarioDto.telefone,
         ativo: criarFuncionarioDto.ativo,
-        // Conecta o funcionário a um perfil existente usando o id_perfil fornecido
         perfil: {
           connect: { id_perfil: criarFuncionarioDto.id_perfil },
         },
@@ -58,10 +63,7 @@ export class FuncionarioService {
     id_funcionario: number,
     updateFuncionarioDto: CreateFuncionarioDto,
   ): Promise<Funcionario> {
-    // Verifica se o funcionário existe
     await this.findOne(id_funcionario);
-
-    // Se o e-mail estiver sendo atualizado, verifica se já está em uso por outro funcionário
 
     const existingFuncionario = await this.prisma.funcionario.findUnique({
       where: {
@@ -78,7 +80,14 @@ export class FuncionarioService {
       );
     }
 
-    // Atualiza o funcionário no banco de dados
+    if (updateFuncionarioDto?.senha) {
+      const senhaHash = await this.bcryptService.hash(
+        updateFuncionarioDto.senha,
+      );
+
+      updateFuncionarioDto['senha'] = senhaHash;
+    }
+
     return this.prisma.funcionario.update({
       where: { id_funcionario },
       data: updateFuncionarioDto,
@@ -86,10 +95,8 @@ export class FuncionarioService {
   }
 
   async remove(id_funcionario: number): Promise<Funcionario> {
-    // Verifica se o funcionário existe antes de tentar remover
     await this.findOne(id_funcionario);
 
-    // Remove o funcionário do banco de dados
     return this.prisma.funcionario.delete({
       where: { id_funcionario },
     });
