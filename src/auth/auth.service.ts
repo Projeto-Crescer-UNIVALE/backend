@@ -20,14 +20,16 @@ export class AuthService {
       include: { perfil: true },
     });
 
-    if (!funcionario) throw new BadRequestException('Funcionário inválido.');
+    if (!funcionario)
+      throw new BadRequestException('E-mail ou senha incorretos.');
 
     const passwordValid = await this.bcryptService.compare(
       loginDto.senha,
       funcionario.senha,
     );
 
-    if (!passwordValid) throw new BadRequestException('Senha inválida.');
+    if (!passwordValid)
+      throw new BadRequestException('E-mail ou senha incorretos.');
 
     const id_sessao = randomUUID();
     const now = new Date();

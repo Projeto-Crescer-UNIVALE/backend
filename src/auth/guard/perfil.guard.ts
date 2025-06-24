@@ -5,14 +5,21 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Observable } from 'rxjs';
 import { REQUEST_TOKEN_PAYLOAD_KEY } from '../auth.constants';
+import { IS_PUBLICK_KEY } from '../decorator/not-auth.decorator';
+import { Request } from 'express';
 
 @Injectable()
 export class PerfilGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext) {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLICK_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) return true;
+
     const requiredPerfis = this.reflector.get<string[]>(
       'perfil',
       context.getHandler(),
@@ -22,7 +29,7 @@ export class PerfilGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest<Request>();
+    const request: Request = context.switchToHttp().getRequest<Request>();
     const userPayload = request[REQUEST_TOKEN_PAYLOAD_KEY];
 
     if (!userPayload) {
