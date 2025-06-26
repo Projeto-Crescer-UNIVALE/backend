@@ -8,12 +8,14 @@ import { PrismaService } from 'src/prisma.service';
 import { Funcionario } from './entities/funcionario.entity';
 import { BcryptService } from 'src/auth/hashing/bcrypt.service';
 import { randomUUID } from 'node:crypto';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class FuncionarioService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly bcryptService: BcryptService,
+    private readonly mailerService: MailerService,
   ) {}
 
   async create(
@@ -54,7 +56,15 @@ export class FuncionarioService {
         
       },
     });
-
+    const tokenUrl = `${process.env.FRONT_URL}/auth/criar-senha?token=${token}`
+    await this.mailerService
+      .sendMail({
+        to: novoFuncionario.email,  
+        subject: 'Autenticação Projeto Crescer', 
+        html: `<p>Olá ${novoFuncionario.nome}</p><br>
+       <p>Utilize o link abaixo para acessar sua conta pela primeira vez e definir sua senha. Não o compartilhe com ninguém.</p><br>
+       <a href="${tokenUrl}">${tokenUrl}</a>`, 
+      })
     return novoFuncionario;
   }
 
