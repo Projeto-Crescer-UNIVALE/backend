@@ -19,7 +19,6 @@ import { NotAuth } from 'src/auth/decorator/not-auth.decorator';
 export class PerfilController {
   constructor(private readonly perfilService: PerfilService) {}
 
-  @NotAuth()
   @Post()
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createPerfilDto: CreatePerfilDto) {

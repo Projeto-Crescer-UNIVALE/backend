@@ -17,7 +17,6 @@ import { NotAuth } from 'src/auth/decorator/not-auth.decorator';
 export class FuncionarioController {
   constructor(private readonly funcionariosService: FuncionarioService) {}
 
-  @NotAuth()
   @Post()
   create(@Body() dto: CreateFuncionarioDto) {
     return this.funcionariosService.create(dto);
