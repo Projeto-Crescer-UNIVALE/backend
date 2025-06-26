@@ -11,11 +11,13 @@ import {
 } from '@nestjs/common';
 import { FuncionarioService } from './funcionario.service';
 import { CreateFuncionarioDto } from './dto/create-funcionario.dto';
+import { NotAuth } from 'src/auth/decorator/not-auth.decorator';
 
 @Controller('funcionario')
 export class FuncionarioController {
   constructor(private readonly funcionariosService: FuncionarioService) {}
 
+  @NotAuth()
   @Post()
   create(@Body() dto: CreateFuncionarioDto) {
     return this.funcionariosService.create(dto);
@@ -43,6 +45,4 @@ export class FuncionarioController {
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.funcionariosService.remove(id);
   }
-
-
 }

@@ -13,11 +13,13 @@ import {
 import { PerfilService } from './perfil.service';
 import { CreatePerfilDto } from './dto/create-perfil.dto';
 import { UpdatePerfilDto } from './dto/update-perfil.dto';
+import { NotAuth } from 'src/auth/decorator/not-auth.decorator';
 
 @Controller('perfil')
 export class PerfilController {
   constructor(private readonly perfilService: PerfilService) {}
 
+  @NotAuth()
   @Post()
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createPerfilDto: CreatePerfilDto) {
