@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { FuncionarioService } from './funcionario.service';
 import { CreateFuncionarioDto } from './dto/create-funcionario.dto';
-import { NotAuth } from 'src/auth/decorator/not-auth.decorator';
 
 @Controller('funcionario')
 export class FuncionarioController {
