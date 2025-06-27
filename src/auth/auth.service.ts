@@ -7,6 +7,7 @@ import { randomUUID } from 'crypto';
 import { BcryptService } from './hashing/bcrypt.service';
 import { VerificaTokenDto } from './dto/verifica-token.dto';
 import { Funcionario, Prisma } from 'generated/prisma';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class AuthService {
@@ -14,6 +15,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly bcryptService: BcryptService,
+    private readonly mailerService: MailerService,
   ) {}
 
   async validateUser(loginDto: LoginDto): Promise<LoginResponseDto | null> {
@@ -128,5 +130,35 @@ export class AuthService {
       },
       expiresAt: expiresIn,
     };
+  }
+
+  async recuperarSenha(email: string) {
+    const funcionario = await this.prisma.funcionario.findUnique({
+      where: { email: email.toLowerCase().trim() },
+    });
+
+    if (!funcionario || !funcionario.ativo) {
+      return;
+    }
+
+    const tokenValor = randomUUID();
+
+    await this.prisma.token.create({
+      data: {
+        valor: tokenValor,
+        tipo: 'redefinicao_senha',
+        funcionarioId: funcionario.id_funcionario,
+        ativo: true,
+      },
+    });
+
+    const tokenUrl = `${process.env.FRONT_URL}/auth/recuperar-senha?token=${tokenValor}`;
+    await this.mailerService.sendMail({
+      to: funcionario.email,
+      subject: 'Recuperação de Senha Projeto Crescer',
+      html: `<p>Olá ${funcionario.nome}</p><br>
+       <p>Utilize o link abaixo para recuperar a sua senha e redefiní-la. Não o compartilhe com ninguém.</p><br>
+       <a href="${tokenUrl}">${tokenUrl}</a>`,
+    });
   }
 }
