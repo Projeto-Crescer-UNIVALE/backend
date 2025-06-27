@@ -21,7 +21,6 @@ export class FuncionarioService {
   async create(
     criarFuncionarioDto: CreateFuncionarioDto,
   ): Promise<Funcionario> {
-    
     const existeFuncionario = await this.prisma.funcionario.findUnique({
       where: { email: criarFuncionarioDto.email },
     });
@@ -29,7 +28,7 @@ export class FuncionarioService {
     if (existeFuncionario) {
       throw new ConflictException('Já existe um funcionário com este e-mail.');
     }
-    
+
     const senhaTemporaria = randomUUID();
     const senhaHash = await this.bcryptService.hash(senhaTemporaria);
 
@@ -50,21 +49,19 @@ export class FuncionarioService {
 
     await this.prisma.token.create({
       data: {
-        valor: token, 
+        valor: token,
         tipo: 'primeiro_acesso',
         funcionarioId: novoFuncionario.id_funcionario,
-        
       },
     });
-    const tokenUrl = `${process.env.FRONT_URL}/auth/criar-senha?token=${token}`
-    await this.mailerService
-      .sendMail({
-        to: novoFuncionario.email,  
-        subject: 'Autenticação Projeto Crescer', 
-        html: `<p>Olá ${novoFuncionario.nome}</p><br>
+    const tokenUrl = `${process.env.FRONT_URL}/auth/criar-senha?token=${token}`;
+    await this.mailerService.sendMail({
+      to: novoFuncionario.email,
+      subject: 'Autenticação Projeto Crescer',
+      html: `<p>Olá ${novoFuncionario.nome}</p><br>
        <p>Utilize o link abaixo para acessar sua conta pela primeira vez e definir sua senha. Não o compartilhe com ninguém.</p><br>
-       <a href="${tokenUrl}">${tokenUrl}</a>`, 
-      })
+       <a href="${tokenUrl}">${tokenUrl}</a>`,
+    });
     return novoFuncionario;
   }
 
@@ -122,7 +119,7 @@ export class FuncionarioService {
 
   async validarTokenPrimeiroAcesso(token: string) {
     const tokenValido = await this.prisma.token.findUnique({
-      where: { valor: token }, 
+      where: { valor: token },
       include: { funcionario: true },
     });
 
@@ -143,7 +140,7 @@ export class FuncionarioService {
 
   async definirSenhaPrimeiroAcesso(token: string, senha: string) {
     const tokenRegistro = await this.prisma.token.findUnique({
-      where: { valor: token }, 
+      where: { valor: token },
     });
 
     if (!tokenRegistro || tokenRegistro.usado_em !== null) {
@@ -158,8 +155,8 @@ export class FuncionarioService {
     });
 
     await this.prisma.token.update({
-      where: { valor: token }, 
-      data: { usado_em: new Date() }, 
+      where: { valor: token },
+      data: { usado_em: new Date() },
     });
 
     return { sucesso: true };
