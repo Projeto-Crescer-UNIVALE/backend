@@ -44,7 +44,6 @@ export class AlunoController {
 
   // @NotAuth() // Exemplo de rota que não exigirá autenticação para funcionar.
   @Delete(':id')
-  @PerfilRequired(Perfil.PROFESSOR) 
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.alunoService.remove(id);
   }
