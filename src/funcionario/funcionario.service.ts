@@ -72,6 +72,9 @@ export class FuncionarioService {
   async findOne(id_funcionario: number) {
     const funcionario = await this.prisma.funcionario.findUnique({
       where: { id_funcionario },
+      omit: {
+        senha: true,
+      },
     });
 
     if (!funcionario) {
@@ -105,6 +108,9 @@ export class FuncionarioService {
 
     return this.prisma.funcionario.update({
       where: { id_funcionario },
+      omit: {
+        senha: true,
+      },
       data: updateFuncionarioDto,
     });
   }
@@ -114,6 +120,9 @@ export class FuncionarioService {
 
     return this.prisma.funcionario.delete({
       where: { id_funcionario },
+      omit: {
+        senha: true,
+      },
     });
   }
 
