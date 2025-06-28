@@ -10,11 +10,22 @@ import { PrismaService } from './prisma.service';
 import { OficinaModule } from './oficina/oficina.module';
 import { AuthModule } from './auth/auth.module';
 import { DiarioModule } from './aluno/diario/diario.module'; 
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    MailerModule.forRoot({
+      transport:{
+        host: process.env.EMAIL_HOST,
+        port: process.env.EMAIL_PORT ? +process.env.EMAIL_PORT : 587,
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS
+        }
+      }
     }),
     FuncionarioModule,
     PerfilModule,
