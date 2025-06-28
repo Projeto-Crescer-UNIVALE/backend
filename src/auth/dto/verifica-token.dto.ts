@@ -1,4 +1,9 @@
+import { IsEnum, IsUUID } from 'class-validator';
+import { TokenTipo } from 'generated/prisma';
+
 export class VerificaTokenDto {
+  @IsUUID()
   token: string;
-  tipoToken: 'primeiro_acesso' | 'redefinicao_senha';
+  @IsEnum(TokenTipo)
+  tipoToken: TokenTipo;
 }

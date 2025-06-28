@@ -5,10 +5,11 @@ import { LoginResponseDto } from './dto/login-response.dto';
 import { NotAuth } from './decorator/not-auth.decorator';
 import { VerificaTokenDto } from './dto/verifica-token.dto';
 import { RecuperarSenhaDto } from './dto/recuperar-senha.dto';
-import { UsuarioAtual } from './decorator/usuario-atual.decorator';
-import { UpdateFuncionarioDto } from 'src/funcionario/dto/update-funcionario.dto';
+import {
+  FuncionarioAtual,
+  FuncionarioAtualInterface,
+} from './decorator/funcionario-atual.decorator';
 import { AlterarSenhaDto } from './dto/alterar-senha.dto';
-import { Funcionario } from 'generated/prisma';
 
 @Controller('auth')
 export class AuthController {
@@ -43,10 +44,10 @@ export class AuthController {
 
   @Post('alterar-senha')
   async alterarSenha(
-    @UsuarioAtual() funcionario: Funcionario,
+    @FuncionarioAtual() funcionarioAtual: FuncionarioAtualInterface,
     @Body() alterarSenhaDto: AlterarSenhaDto,
   ) {
-    const id_funcionario = funcionario.id_funcionario;
+    const id_funcionario = funcionarioAtual.id_funcionario;
 
     await this.authService.alterarSenha(id_funcionario, alterarSenhaDto);
     return {

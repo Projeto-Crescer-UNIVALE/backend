@@ -10,7 +10,7 @@ import { LoginResponseDto } from './dto/login-response.dto';
 import { randomUUID } from 'crypto';
 import { BcryptService } from './hashing/bcrypt.service';
 import { VerificaTokenDto } from './dto/verifica-token.dto';
-import { Funcionario, Prisma } from 'generated/prisma';
+import { Prisma } from 'generated/prisma';
 import { MailerService } from '@nestjs-modules/mailer';
 import { AlterarSenhaDto } from './dto/alterar-senha.dto';
 
