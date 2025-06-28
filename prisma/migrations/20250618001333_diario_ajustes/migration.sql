@@ -15,7 +15,7 @@ DROP INDEX `diario_id_funcionario_fkey` ON `diario`;
 ALTER TABLE `diario` 
     DROP COLUMN `id_funcionario`,
     ADD COLUMN `id_autor` INTEGER NOT NULL,
-    ADD COLUMN `atualizado_em` DATETIME NOT NULL DEFAULT NOW(), -- 📌 Ajuste necessário para o campo atualizado_em
+    ADD COLUMN `atualizado_em` DATETIME NOT NULL DEFAULT NOW(), --  Ajuste necessário para o campo atualizado_em
     MODIFY `id_oficina` INTEGER NULL;
 
 -- AddForeignKey

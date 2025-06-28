@@ -16,37 +16,35 @@ import { PerfilRequired } from 'src/auth/decorator/perfil.decorator';
 import { Perfil } from 'src/common/perfil.enum';
 import { NotAuth } from 'src/auth/decorator/not-auth.decorator';
 
+@PerfilRequired(Perfil.ADMINISTRADOR) 
 @Controller('aluno') // ENDPOINT <------------------
 export class AlunoController {
   constructor(private readonly alunoService: AlunoService) {}
 
   @Post()
-  @PerfilRequired(Perfil.ADMINISTRADOR)
   create(@Body() dto: CreateAlunoDto) {
     return this.alunoService.create(dto);
   }
 
   @Get()
-  @PerfilRequired(Perfil.ADMINISTRADOR)
   findAll() {
     return this.alunoService.findAll();
   }
 
   @Get(':id')
-  @PerfilRequired(Perfil.PROFESSOR, Perfil.ADMINISTRADOR)
+  @PerfilRequired(Perfil.PROFESSOR, Perfil.ADMINISTRADOR) 
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.alunoService.findOne(id);
   }
 
   @Put(':id')
-  @PerfilRequired(Perfil.ADMINISTRADOR)
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: CreateAlunoDto) {
     return this.alunoService.update(id, dto);
   }
 
   // @NotAuth() // Exemplo de rota que não exigirá autenticação para funcionar.
   @Delete(':id')
-  @PerfilRequired(Perfil.PROFESSOR)
+  @PerfilRequired(Perfil.PROFESSOR) 
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.alunoService.remove(id);
   }

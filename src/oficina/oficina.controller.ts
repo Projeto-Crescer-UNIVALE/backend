@@ -14,7 +14,10 @@ import { OficinaService } from './oficina.service';
 import { CreateOficinaDto } from './dto/create-oficina.dto';
 import { UpdateOficinaDto } from './dto/update-oficina.dto';
 import { Oficina } from 'generated/prisma';
+import { PerfilRequired } from 'src/auth/decorator/perfil.decorator';
+import { Perfil } from 'src/common/perfil.enum';
 
+@PerfilRequired(Perfil.ADMINISTRADOR)
 @Controller('oficina') // Define o prefixo da rota para este controlador
 export class OficinaController {
   constructor(private readonly oficinaService: OficinaService) {}
