@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output = "../generated/prisma"
 }
 
 datasource db {
@@ -35,7 +36,7 @@ model Aluno {
 
 model ProgramaSocial {
   id_programa_social Int    @id @default(autoincrement())
-  nome               String @map("nome") @db.VarChar(300)
+  nome               String @map("nome") @db.VarChar(300) @unique
 
   alunos Aluno[]
 
@@ -75,7 +76,7 @@ enum TokenTipo {
 
 model Perfil {
   id_perfil Int    @id @default(autoincrement()) @map("id_perfil")
-  nome      String @map("nome") @db.VarChar(300)
+  nome      String @map("nome") @db.VarChar(300) @unique
 
   funcionarios Funcionario[]
 

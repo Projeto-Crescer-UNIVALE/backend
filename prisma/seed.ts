@@ -6,9 +6,14 @@ const prisma = new PrismaClient();
 async function seed() {
   const senhaCriptografada = await bcrypt.hash('admin', 10);
 
+  await prisma.perfil.upsert({
+    where: { nome: 'Administrador' },
+    update: {},
+    create: { nome: 'Administrador' },
+  });
   await prisma.perfil.create({
     data: {
-      nome: 'Administrador',
+      nome: 'Professor',
     },
   });
   await prisma.funcionario.create({
@@ -21,9 +26,14 @@ async function seed() {
       id_perfil: 1,
     },
   });
+  await prisma.programaSocial.upsert({
+    where: { nome: 'Programa Bolsa Família' },
+    update: {},
+    create: { nome: 'Programa Bolsa Família' },
+  });
   await prisma.programaSocial.create({
     data: {
-      nome: 'Projeto Crescer',
+      nome: 'BPC/LOAS',
     },
   });
   await prisma.$disconnect();
