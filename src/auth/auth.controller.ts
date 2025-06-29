@@ -5,6 +5,11 @@ import { LoginResponseDto } from './dto/login-response.dto';
 import { NotAuth } from './decorator/not-auth.decorator';
 import { VerificaTokenDto } from './dto/verifica-token.dto';
 import { RecuperarSenhaDto } from './dto/recuperar-senha.dto';
+import {
+  FuncionarioAtual,
+  FuncionarioAtualInterface,
+} from './decorator/funcionario-atual.decorator';
+import { AlterarSenhaDto } from './dto/alterar-senha.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -34,6 +39,19 @@ export class AuthController {
     return {
       message:
         'Solicitação enviada. Se esse e-mail corresponder a uma conta cadastrada, você receberá um e-mail com instruções para alterar sua senha.',
+    };
+  }
+
+  @Post('alterar-senha')
+  async alterarSenha(
+    @FuncionarioAtual() funcionarioAtual: FuncionarioAtualInterface,
+    @Body() alterarSenhaDto: AlterarSenhaDto,
+  ) {
+    const id_funcionario = funcionarioAtual.id_funcionario;
+
+    await this.authService.alterarSenha(id_funcionario, alterarSenhaDto);
+    return {
+      message: 'Sua senha foi alterada com sucesso.',
     };
   }
 }

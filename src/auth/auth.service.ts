@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma.service';
 import { LoginDto } from './dto/login.dto';
@@ -6,8 +10,9 @@ import { LoginResponseDto } from './dto/login-response.dto';
 import { randomUUID } from 'crypto';
 import { BcryptService } from './hashing/bcrypt.service';
 import { VerificaTokenDto } from './dto/verifica-token.dto';
-import { Funcionario, Prisma } from 'generated/prisma';
+import { Prisma } from 'generated/prisma';
 import { MailerService } from '@nestjs-modules/mailer';
+import { AlterarSenhaDto } from './dto/alterar-senha.dto';
 
 @Injectable()
 export class AuthService {
@@ -159,6 +164,39 @@ export class AuthService {
       html: `<p>Olá ${funcionario.nome}</p><br>
        <p>Utilize o link abaixo para recuperar a sua senha e redefiní-la. Não o compartilhe com ninguém.</p><br>
        <a href="${tokenUrl}">${tokenUrl}</a>`,
+    });
+  }
+
+  async alterarSenha(id_funcionario: number, alterarSenhaDto: AlterarSenhaDto) {
+    if (alterarSenhaDto.novaSenha !== alterarSenhaDto.confirmarNovaSenha) {
+      throw new BadRequestException('As senhas informadas não coincidem.');
+    }
+
+    const funcionario = await this.prisma.funcionario.findUnique({
+      where: { id_funcionario },
+    });
+
+    if (!funcionario) {
+      throw new NotFoundException('Funcionário não encontrado.');
+    }
+
+    const hashSenha = await this.bcryptService.hash(alterarSenhaDto.novaSenha);
+
+    await this.prisma.funcionario.update({
+      where: { id_funcionario },
+      data: {
+        senha: hashSenha,
+      },
+    });
+
+    await this.prisma.sessao.updateMany({
+      where: {
+        id_funcionario: id_funcionario,
+        ativo: true,
+      },
+      data: {
+        ativo: false,
+      },
     });
   }
 }

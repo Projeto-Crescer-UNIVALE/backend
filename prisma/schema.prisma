@@ -68,6 +68,8 @@ model Token {
   ativo        Boolean      @default(true)
   funcionarioId Int
   funcionario  Funcionario  @relation(fields: [funcionarioId], references: [id_funcionario])
+
+  @@map("token")
 }
 enum TokenTipo {
   primeiro_acesso
