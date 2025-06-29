@@ -10,7 +10,10 @@ import {
 } from '@nestjs/common';
 import { FuncionarioService } from './funcionario.service';
 import { CreateFuncionarioDto } from './dto/create-funcionario.dto';
+import { PerfilRequired } from 'src/auth/decorator/perfil.decorator';
+import { Perfil } from 'src/common/perfil.enum';
 
+@PerfilRequired(Perfil.ADMINISTRADOR)
 @Controller('funcionario')
 export class FuncionarioController {
   constructor(private readonly funcionariosService: FuncionarioService) {}

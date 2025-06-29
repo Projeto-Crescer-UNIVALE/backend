@@ -1,10 +1,20 @@
 import {
-  Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { DiarioService } from './diario.service';
 import { CreateDiarioDto } from './dto/create-diario.dto';
 import { UpdateDiarioDto } from './dto/update-diario.dto';
+import { PerfilRequired } from 'src/auth/decorator/perfil.decorator';
+import { Perfil } from 'src/common/perfil.enum';
 
+@PerfilRequired(Perfil.ADMINISTRADOR)
 @Controller('aluno/:idAluno/diario')
 export class DiarioController {
   constructor(private readonly diarioService: DiarioService) {}
@@ -12,7 +22,7 @@ export class DiarioController {
   @Post()
   create(
     @Param('idAluno', ParseIntPipe) idAluno: number,
-    @Body() dto: CreateDiarioDto
+    @Body() dto: CreateDiarioDto,
   ) {
     return this.diarioService.create(idAluno, dto);
   }
@@ -25,7 +35,7 @@ export class DiarioController {
   @Get(':id')
   findOne(
     @Param('idAluno', ParseIntPipe) idAluno: number,
-    @Param('id', ParseIntPipe) id_diario: number
+    @Param('id', ParseIntPipe) id_diario: number,
   ) {
     return this.diarioService.findOne(idAluno, id_diario);
   }
@@ -34,7 +44,7 @@ export class DiarioController {
   update(
     @Param('idAluno', ParseIntPipe) idAluno: number,
     @Param('id', ParseIntPipe) id_diario: number,
-    @Body() dto: UpdateDiarioDto
+    @Body() dto: UpdateDiarioDto,
   ) {
     return this.diarioService.update(idAluno, id_diario, dto);
   }
@@ -42,7 +52,7 @@ export class DiarioController {
   @Delete(':id')
   delete(
     @Param('idAluno', ParseIntPipe) idAluno: number,
-    @Param('id', ParseIntPipe) id_diario: number
+    @Param('id', ParseIntPipe) id_diario: number,
   ) {
     return this.diarioService.delete(idAluno, id_diario);
   }
