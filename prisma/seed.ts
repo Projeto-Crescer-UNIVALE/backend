@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../generated/prisma';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -11,30 +11,38 @@ async function seed() {
     update: {},
     create: { nome: 'Administrador' },
   });
-  await prisma.perfil.create({
-    data: {
+
+  await prisma.perfil.upsert({
+    where: { nome: 'Professor' },
+    update: {},
+    create: {
       nome: 'Professor',
     },
   });
-  await prisma.funcionario.create({
-    data: {
+
+  await prisma.funcionario.upsert({
+    where: { email: 'admin@teste.br' },
+    update: {},
+    create: {
       nome: 'admin',
-      email: 'admin@univale.br',
+      email: 'admin@teste.br',
       senha: senhaCriptografada,
       telefone: '12345678910',
       ativo: true,
       id_perfil: 1,
     },
   });
+
   await prisma.programaSocial.upsert({
     where: { nome: 'Programa Bolsa Família' },
     update: {},
     create: { nome: 'Programa Bolsa Família' },
   });
-  await prisma.programaSocial.create({
-    data: {
-      nome: 'BPC/LOAS',
-    },
+
+  await prisma.programaSocial.upsert({
+    where: { nome: 'BPC/LOAS' },
+    update: {},
+    create: { nome: 'BPC/LOAS' },
   });
   await prisma.$disconnect();
 }
