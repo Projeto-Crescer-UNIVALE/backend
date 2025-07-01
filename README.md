@@ -39,7 +39,24 @@ FRONT_URL="http://localhost:3000"
 npx prisma generate
 ```
 
-### 5. Execute as migrações do banco de dados
+### 5. Gere os arquivos iniciais (seed)
+
+Execute o comando abaixo para popular o banco de dados com os dados iniciais:
+
+- Perfis: **Administrador** e **Professor**  
+- Programas Sociais padrão  
+- Usuário administrador padrão para login
+
+**Credenciais padrão:**
+
+- **Usuário:** `admin`  
+- **Senha:** `admin`
+
+```bash
+npx prisma db seed
+```
+
+### 6. Execute as migrações do banco de dados
 
 ```bash
 npx prisma db push
