@@ -45,6 +45,23 @@ npx prisma generate
 npx prisma db push
 ```
 
+### 6. Gere os arquivos iniciais (seed)
+
+Execute o comando abaixo para popular o banco de dados com os dados iniciais:
+
+- Perfis: **Administrador** e **Professor**  
+- Programas Sociais padrão  
+- Usuário administrador padrão para login
+
+**Credenciais padrão:**
+
+- **Email:** `admin@teste.br`  
+- **Senha:** `admin`
+
+```bash
+npx prisma db seed
+```
+
 ## Rodando o projeto
 
 ### Em modo desenvolvimento 
