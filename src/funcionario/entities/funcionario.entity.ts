@@ -1,9 +1,5 @@
-export class Funcionario {
-  id_funcionario: number;
-  id_perfil: number;
-  nome: string;
-  email: string;
-  senha: string;
-  telefone: string;
-  ativo: boolean;
-}
+import { Prisma } from 'generated/prisma';
+
+export type Funcionario = Prisma.FuncionarioGetPayload<{
+  omit: { senha: true };
+}>;
