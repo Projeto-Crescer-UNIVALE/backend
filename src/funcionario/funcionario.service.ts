@@ -66,7 +66,11 @@ export class FuncionarioService {
   }
 
   async findAll() {
-    return this.prisma.funcionario.findMany();
+    return this.prisma.funcionario.findMany({
+      omit: {
+        senha: true,
+      },
+    });
   }
 
   async findOne(id_funcionario: number) {
