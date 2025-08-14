@@ -8,6 +8,7 @@ import {
   Put,
   ParseIntPipe,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { AlunoService } from './aluno.service';
 import { CreateAlunoDto } from './dto/create-aluno.dto';
@@ -15,8 +16,9 @@ import { PerfilGuard } from 'src/auth/guard/perfil.guard';
 import { PerfilRequired } from 'src/auth/decorator/perfil.decorator';
 import { Perfil } from 'src/common/perfil.enum';
 import { NotAuth } from 'src/auth/decorator/not-auth.decorator';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
 
-@PerfilRequired(Perfil.ADMINISTRADOR) 
+@PerfilRequired(Perfil.ADMINISTRADOR)
 @Controller('aluno') // ENDPOINT <------------------
 export class AlunoController {
   constructor(private readonly alunoService: AlunoService) {}
@@ -27,12 +29,12 @@ export class AlunoController {
   }
 
   @Get()
-  findAll() {
-    return this.alunoService.findAll();
+  findAll(@Query() query: PaginationQueryDto) {
+    return this.alunoService.findAll(query);
   }
 
   @Get(':id')
-  @PerfilRequired(Perfil.PROFESSOR, Perfil.ADMINISTRADOR) 
+  @PerfilRequired(Perfil.PROFESSOR, Perfil.ADMINISTRADOR)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.alunoService.findOne(id);
   }
