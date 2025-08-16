@@ -6,17 +6,17 @@ import {
 import { PrismaService } from 'src/prisma.service';
 import { CreateDiarioDto } from './dto/create-diario.dto';
 import { UpdateDiarioDto } from './dto/update-diario.dto';
+import { FuncionarioAtualInterface } from 'src/auth/decorator/funcionario-atual.decorator';
+
+
 
 @Injectable()
 export class DiarioService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(idAluno: number, dto: CreateDiarioDto) {
+  async create(idAluno: number, dto: CreateDiarioDto, funcionarioAtual: FuncionarioAtualInterface) {
     const aluno = await this.prisma.aluno.findUnique({ where: { id_aluno: idAluno } });
     if (!aluno) throw new NotFoundException(`Aluno ${idAluno} não existe.`);
-
-    const autor = await this.prisma.funcionario.findUnique({ where: { id_funcionario: dto.id_autor } });
-    if (!autor) throw new BadRequestException(`Autor ${dto.id_autor} não existe.`);
 
     if (dto.id_oficina) {
       const oficina = await this.prisma.oficina.findUnique({ where: { id_oficina: dto.id_oficina } });
@@ -26,7 +26,7 @@ export class DiarioService {
     return this.prisma.diario.create({
       data: {
         id_aluno: idAluno,
-        id_autor: dto.id_autor,
+        id_autor: funcionarioAtual.id_funcionario,
         id_oficina: dto.id_oficina || null,
         conteudo: dto.conteudo,
         

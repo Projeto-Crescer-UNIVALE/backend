@@ -13,6 +13,9 @@ import { CreateDiarioDto } from './dto/create-diario.dto';
 import { UpdateDiarioDto } from './dto/update-diario.dto';
 import { PerfilRequired } from 'src/auth/decorator/perfil.decorator';
 import { Perfil } from 'src/common/perfil.enum';
+import { FuncionarioAtual, FuncionarioAtualInterface } from 'src/auth/decorator/funcionario-atual.decorator';
+
+
 
 @PerfilRequired(Perfil.ADMINISTRADOR)
 @Controller('aluno/:idAluno/diario')
@@ -23,8 +26,9 @@ export class DiarioController {
   create(
     @Param('idAluno', ParseIntPipe) idAluno: number,
     @Body() dto: CreateDiarioDto,
+    @FuncionarioAtual() funcionarioAtual: FuncionarioAtualInterface,
   ) {
-    return this.diarioService.create(idAluno, dto);
+    return this.diarioService.create(idAluno, dto, funcionarioAtual);
   }
 
   @Get()
