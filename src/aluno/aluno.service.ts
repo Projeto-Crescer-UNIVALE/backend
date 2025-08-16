@@ -7,6 +7,8 @@ import { CreateAlunoDto } from './dto/create-aluno.dto';
 import { PrismaService } from 'src/prisma.service';
 import { Aluno } from 'generated/prisma';
 import { paginate } from 'nestjs-prisma-pagination';
+import { minhaPaginacao } from 'src/common/utils/pagination';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
 
 @Injectable()
 export class AlunoService {
@@ -54,36 +56,16 @@ export class AlunoService {
     return novoAluno;
   }
 
-  async findAll(query: {
-    page?: number;
-    limit?: number;
-  }): Promise<{ data: Aluno[]; meta: any }> {
-    const { page = 1, limit = 5 } = query;
-
-    const paginacaoQuery = paginate(
-      { page, limit },
+  async findAll(query: PaginationQueryDto) {
+    return minhaPaginacao(
+      { page: query.page, limit: query.limit, search: query.search },
       {
-        orderBy: { id_aluno: 'asc' },
         includes: ['programaSocial'],
+        orderBy: { id_aluno: 'asc' },
+        search: ['nome', 'cpf'],
       },
+      this.prisma.aluno,
     );
-
-    const [totalCount, alunos] = await this.prisma.$transaction([
-      this.prisma.aluno.count(),
-      this.prisma.aluno.findMany(paginacaoQuery),
-    ]);
-
-    return {
-      data: alunos,
-      meta: {
-        total: totalCount,
-        lastPage: Math.ceil(totalCount / limit),
-        currentPage: page,
-        perPage: limit,
-        prev: page > 1 ? page - 1 : null,
-        next: page * limit < totalCount ? page + 1 : null,
-      },
-    };
   }
 
   async findOne(id_aluno: number): Promise<Aluno> {
