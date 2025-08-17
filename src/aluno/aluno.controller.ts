@@ -16,7 +16,7 @@ import { PerfilGuard } from 'src/auth/guard/perfil.guard';
 import { PerfilRequired } from 'src/auth/decorator/perfil.decorator';
 import { Perfil } from 'src/common/perfil.enum';
 import { NotAuth } from 'src/auth/decorator/not-auth.decorator';
-import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { PaginationQueryDto } from '../common/utils/dto/pagination-query.dto';
 
 @PerfilRequired(Perfil.ADMINISTRADOR)
 @Controller('aluno') // ENDPOINT <------------------

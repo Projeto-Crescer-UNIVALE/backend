@@ -1,39 +1,61 @@
-import { paginate } from 'nestjs-prisma-pagination';
+import {
+  paginate,
+  PaginationArgs,
+  PaginationOptions,
+} from 'nestjs-prisma-pagination';
 
-type PrismaModel<T> = {
+type PrismaDeLegate<E> = {
   count: (args?: any) => Promise<number>;
-  findMany: (args?: any) => Promise<T[]>;
-  $transaction?: any;
+  findMany: (args?: any) => Promise<E[]>;
 };
 
-interface PaginateParams {
-  page?: number;
-  limit?: number;
+interface ExtendedPaginationArgs extends PaginationArgs {
   search?: string;
 }
-
-interface PaginateOptions {
-  includes?: string[];
-  orderBy?: any;
+// Esses dois para incluir o search neles, para não dar erro de tipo.
+interface ExtendedPaginationOptions extends PaginationOptions {
   search?: string[];
 }
 
-export async function minhaPaginacao<T>(
-  params: PaginateParams,
-  options: PaginateOptions,
-  prismaModel: PrismaModel<T>,
+// Função para remover 'mode' recursivamente
+function removeModeFromQuery(obj: any): any {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map((item) => removeModeFromQuery(item));
+  }
+
+  if (typeof obj === 'object') {
+    const cleaned: any = {};
+
+    for (const [key, value] of Object.entries(obj)) {
+      if (key === 'mode') {
+        continue; // Remove 'mode'
+      }
+      cleaned[key] = removeModeFromQuery(value);
+    }
+
+    return cleaned;
+  }
+
+  return obj;
+}
+
+export async function Paginate<
+  E,
+  T extends PrismaDeLegate<E> = PrismaDeLegate<E>,
+>(
+  params: ExtendedPaginationArgs = { page: 1, limit: 10 },
+  options: ExtendedPaginationOptions,
+  model: T,
 ) {
   const page = params.page ?? 1;
   const limit = params.limit ?? 10;
 
-  const prismaQuery = paginate(
-    { page, limit, search: params.search },
-    {
-      includes: options.includes || [],
-      orderBy: options.orderBy || {},
-      search: options.search || [],
-    },
-  );
+  const prismaQuery = paginate(params, options);
+  const cleanedPrismaQuery = removeModeFromQuery(prismaQuery);
 
   const whereSearch = params.search
     ? {
@@ -43,15 +65,24 @@ export async function minhaPaginacao<T>(
       }
     : {};
 
-  const [totalCount, data] = (await prismaModel.$transaction)
-    ? await prismaModel.$transaction([
-        prismaModel.count({ where: whereSearch }),
-        prismaModel.findMany({ ...prismaQuery, where: whereSearch }),
-      ])
-    : await Promise.all([
-        prismaModel.count({ where: whereSearch }),
-        prismaModel.findMany({ ...prismaQuery, where: whereSearch }),
-      ]);
+  // Combina o where da busca com o where das options (se existir)
+  const combinedWhere = {
+    ...cleanedPrismaQuery.where,
+    ...whereSearch,
+  };
+
+  // Se tanto prismaQuery.where quanto whereSearch existem, usar AND
+  const finalWhere =
+    cleanedPrismaQuery.where && Object.keys(whereSearch).length > 0
+      ? { AND: [cleanedPrismaQuery.where, whereSearch] }
+      : combinedWhere;
+
+  const cleanFinalWhere = removeModeFromQuery(finalWhere);
+
+  const [totalCount, data] = await Promise.all([
+    model.count({ where: cleanFinalWhere }),
+    model.findMany({ ...cleanedPrismaQuery, where: cleanFinalWhere }),
+  ]);
 
   return {
     data,

@@ -6,9 +6,8 @@ import {
 import { CreateAlunoDto } from './dto/create-aluno.dto';
 import { PrismaService } from 'src/prisma.service';
 import { Aluno } from 'generated/prisma';
-import { paginate } from 'nestjs-prisma-pagination';
-import { minhaPaginacao } from 'src/common/utils/pagination';
-import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { Paginate } from 'src/common/utils/pagination';
+import { PaginationQueryDto } from '../common/utils/dto/pagination-query.dto';
 
 @Injectable()
 export class AlunoService {
@@ -57,7 +56,7 @@ export class AlunoService {
   }
 
   async findAll(query: PaginationQueryDto) {
-    return minhaPaginacao(
+    return Paginate<Aluno>(
       { page: query.page, limit: query.limit, search: query.search },
       {
         includes: ['programaSocial'],
