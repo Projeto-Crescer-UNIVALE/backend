@@ -15,32 +15,7 @@ interface ExtendedPaginationArgs extends PaginationArgs {
 // Esses dois para incluir o search neles, para não dar erro de tipo.
 interface ExtendedPaginationOptions extends PaginationOptions {
   search?: string[];
-}
-
-// Função para remover 'mode' recursivamente
-function removeModeFromQuery(obj: any): any {
-  if (obj === null || obj === undefined) {
-    return obj;
-  }
-
-  if (Array.isArray(obj)) {
-    return obj.map((item) => removeModeFromQuery(item));
-  }
-
-  if (typeof obj === 'object') {
-    const cleaned: any = {};
-
-    for (const [key, value] of Object.entries(obj)) {
-      if (key === 'mode') {
-        continue; // Remove 'mode'
-      }
-      cleaned[key] = removeModeFromQuery(value);
-    }
-
-    return cleaned;
-  }
-
-  return obj;
+  disableInsensitiveMode?: boolean;
 }
 
 export async function Paginate<
@@ -54,34 +29,42 @@ export async function Paginate<
   const page = params.page ?? 1;
   const limit = params.limit ?? 10;
 
-  const prismaQuery = paginate(params, options);
-  const cleanedPrismaQuery = removeModeFromQuery(prismaQuery);
+  // forçando globalmente
+  const mergedOptions: ExtendedPaginationOptions = {
+    disableInsensitiveMode: true,
+    ...options,
+  };
+
+  const prismaQuery = paginate(params, mergedOptions);
 
   const whereSearch = params.search
     ? {
-        OR: (options.search || []).map((campo) => ({
-          [campo]: { contains: params.search },
+        OR: (mergedOptions.search || []).map((campo) => ({
+          [campo]: {
+            contains: params.search,
+            ...(mergedOptions.disableInsensitiveMode
+              ? {}
+              : { mode: 'insensitive' }),
+          },
         })),
       }
     : {};
 
   // Combina o where da busca com o where das options (se existir)
   const combinedWhere = {
-    ...cleanedPrismaQuery.where,
+    ...prismaQuery.where,
     ...whereSearch,
   };
 
   // Se tanto prismaQuery.where quanto whereSearch existem, usar AND
   const finalWhere =
-    cleanedPrismaQuery.where && Object.keys(whereSearch).length > 0
-      ? { AND: [cleanedPrismaQuery.where, whereSearch] }
+    prismaQuery.where && Object.keys(whereSearch).length > 0
+      ? { AND: [prismaQuery.where, whereSearch] }
       : combinedWhere;
 
-  const cleanFinalWhere = removeModeFromQuery(finalWhere);
-
   const [totalCount, data] = await Promise.all([
-    model.count({ where: cleanFinalWhere }),
-    model.findMany({ ...cleanedPrismaQuery, where: cleanFinalWhere }),
+    model.count({ where: finalWhere }),
+    model.findMany({ ...prismaQuery, where: finalWhere }),
   ]);
 
   return {
