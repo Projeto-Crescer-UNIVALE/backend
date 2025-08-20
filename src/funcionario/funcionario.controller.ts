@@ -12,6 +12,7 @@ import { FuncionarioService } from './funcionario.service';
 import { CreateFuncionarioDto } from './dto/create-funcionario.dto';
 import { PerfilRequired } from 'src/auth/decorator/perfil.decorator';
 import { Perfil } from 'src/common/perfil.enum';
+import { PaginationQueryDto } from 'src/common/utils/dto/pagination-query.dto';
 
 @PerfilRequired(Perfil.ADMINISTRADOR)
 @Controller('funcionario')
@@ -24,8 +25,8 @@ export class FuncionarioController {
   }
 
   @Get()
-  findAll() {
-    return this.funcionariosService.findAll();
+  findAll(query: PaginationQueryDto) {
+    return this.funcionariosService.findAll(query);
   }
 
   @Get(':id')

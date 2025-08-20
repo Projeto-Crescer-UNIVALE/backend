@@ -16,6 +16,7 @@ import { UpdateOficinaDto } from './dto/update-oficina.dto';
 import { Oficina } from 'generated/prisma';
 import { PerfilRequired } from 'src/auth/decorator/perfil.decorator';
 import { Perfil } from 'src/common/perfil.enum';
+import { PaginationQueryDto } from 'src/common/utils/dto/pagination-query.dto';
 
 @PerfilRequired(Perfil.ADMINISTRADOR)
 @Controller('oficina') // Define o prefixo da rota para este controlador
@@ -38,8 +39,8 @@ export class OficinaController {
    * @returns Um array de todas as oficinas.
    */
   @Get()
-  findAll(): Promise<Oficina[]> {
-    return this.oficinaService.findAll();
+  findAll(query: PaginationQueryDto): Promise<{ data: Oficina[]; meta: any }> {
+    return this.oficinaService.findAll(query);
   }
 
   /**
@@ -60,7 +61,10 @@ export class OficinaController {
    * @returns A oficina atualizada.
    */
   @Put(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateOficinaDto): Promise<Oficina> {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateOficinaDto,
+  ): Promise<Oficina> {
     return this.oficinaService.update(id, dto);
   }
 

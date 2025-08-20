@@ -3,6 +3,8 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateProgramaSocialDto } from './dto/create-programa-social.dto';
 import { ProgramaSocial } from './entity/programa-social.entity';
+import { Paginate } from 'src/common/utils/pagination';
+import { PaginationQueryDto } from 'src/common/utils/dto/pagination-query.dto';
 
 @Injectable()
 export class ProgramaSocialService {
@@ -30,7 +32,20 @@ export class ProgramaSocialService {
     });
   }
 
-  async findAll(): Promise<ProgramaSocial[]> {
-    return this.prisma.programaSocial.findMany();
+  async findAll(
+    query: PaginationQueryDto,
+  ): Promise<{ data: ProgramaSocial[]; meta: any }> {
+    return Paginate<ProgramaSocial>(
+      {
+        page: query.page,
+        limit: query.limit,
+        search: query.search,
+      },
+      {
+        orderBy: { id_programa_social: 'asc' },
+        search: ['nome'],
+      },
+      this.prisma.programaSocial,
+    );
   }
 }

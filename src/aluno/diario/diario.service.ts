@@ -6,21 +6,32 @@ import {
 import { PrismaService } from 'src/prisma.service';
 import { CreateDiarioDto } from './dto/create-diario.dto';
 import { UpdateDiarioDto } from './dto/update-diario.dto';
+import { Paginate } from 'src/common/utils/pagination';
+import { Diario } from 'generated/prisma';
+import { PaginationQueryDto } from 'src/common/utils/dto/pagination-query.dto';
 
 @Injectable()
 export class DiarioService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(idAluno: number, dto: CreateDiarioDto) {
-    const aluno = await this.prisma.aluno.findUnique({ where: { id_aluno: idAluno } });
+    const aluno = await this.prisma.aluno.findUnique({
+      where: { id_aluno: idAluno },
+    });
     if (!aluno) throw new NotFoundException(`Aluno ${idAluno} não existe.`);
 
-    const autor = await this.prisma.funcionario.findUnique({ where: { id_funcionario: dto.id_autor } });
-    if (!autor) throw new BadRequestException(`Autor ${dto.id_autor} não existe.`);
+    const autor = await this.prisma.funcionario.findUnique({
+      where: { id_funcionario: dto.id_autor },
+    });
+    if (!autor)
+      throw new BadRequestException(`Autor ${dto.id_autor} não existe.`);
 
     if (dto.id_oficina) {
-      const oficina = await this.prisma.oficina.findUnique({ where: { id_oficina: dto.id_oficina } });
-      if (!oficina) throw new BadRequestException(`Oficina ${dto.id_oficina} não existe.`);
+      const oficina = await this.prisma.oficina.findUnique({
+        where: { id_oficina: dto.id_oficina },
+      });
+      if (!oficina)
+        throw new BadRequestException(`Oficina ${dto.id_oficina} não existe.`);
     }
 
     return this.prisma.diario.create({
@@ -29,14 +40,29 @@ export class DiarioService {
         id_autor: dto.id_autor,
         id_oficina: dto.id_oficina || null,
         conteudo: dto.conteudo,
-        
       },
     });
   }
 
-  async findAll(idAluno: number) {
-    const aluno = await this.prisma.aluno.findUnique({ where: { id_aluno: idAluno } });
+  async findAll(idAluno: number, query: PaginationQueryDto) {
+    const aluno = await this.prisma.aluno.findUnique({
+      where: { id_aluno: idAluno },
+    });
     if (!aluno) throw new NotFoundException(`Aluno ${idAluno} não existe.`);
+
+    return Paginate<Diario>(
+      {
+        page: query.page,
+        limit: query.limit,
+        search: query.search,
+      },
+      {
+        includes: ['autor', 'oficina'],
+        orderBy: { id_diario: 'desc' },
+        search: ['criado_em', 'id_diario'],
+      },
+      this.prisma.diario,
+    );
 
     return this.prisma.diario.findMany({
       where: {
@@ -54,7 +80,10 @@ export class DiarioService {
         excluido_em: null,
       },
     });
-    if (!diario) throw new NotFoundException(`Diário ${id_diario} não encontrado para o aluno ${idAluno}.`);
+    if (!diario)
+      throw new NotFoundException(
+        `Diário ${id_diario} não encontrado para o aluno ${idAluno}.`,
+      );
     return diario;
   }
 
@@ -62,13 +91,19 @@ export class DiarioService {
     await this.findOne(idAluno, id_diario);
 
     if (dto.id_autor) {
-      const autor = await this.prisma.funcionario.findUnique({ where: { id_funcionario: dto.id_autor } });
-      if (!autor) throw new BadRequestException(`Autor ${dto.id_autor} não existe.`);
+      const autor = await this.prisma.funcionario.findUnique({
+        where: { id_funcionario: dto.id_autor },
+      });
+      if (!autor)
+        throw new BadRequestException(`Autor ${dto.id_autor} não existe.`);
     }
 
     if (dto.id_oficina) {
-      const oficina = await this.prisma.oficina.findUnique({ where: { id_oficina: dto.id_oficina } });
-      if (!oficina) throw new BadRequestException(`Oficina ${dto.id_oficina} não existe.`);
+      const oficina = await this.prisma.oficina.findUnique({
+        where: { id_oficina: dto.id_oficina },
+      });
+      if (!oficina)
+        throw new BadRequestException(`Oficina ${dto.id_oficina} não existe.`);
     }
 
     return this.prisma.diario.update({

@@ -8,6 +8,8 @@ import { CreatePerfilDto } from './dto/create-perfil.dto';
 import { UpdatePerfilDto } from './dto/update-perfil.dto';
 import { PrismaService } from '../prisma.service'; // Importa o PrismaService
 import { Perfil } from './entities/perfil.entity'; // Importa o tipo Perfil da sua interface
+import { Paginate } from 'src/common/utils/pagination';
+import { PaginationQueryDto } from 'src/common/utils/dto/pagination-query.dto';
 
 @Injectable()
 export class PerfilService {
@@ -29,8 +31,21 @@ export class PerfilService {
     });
   }
 
-  async findAll(): Promise<Perfil[]> {
-    return this.prisma.perfil.findMany();
+  async findAll(
+    query: PaginationQueryDto,
+  ): Promise<{ data: Perfil[]; meta: any }> {
+    return Paginate<Perfil>(
+      {
+        page: query.page,
+        limit: query.limit,
+        search: query.search,
+      },
+      {
+        orderBy: { id_perfil: 'asc' },
+        search: ['nome'],
+      },
+      this.prisma.perfil,
+    );
   }
 
   async findOne(id_perfil: number): Promise<Perfil> {

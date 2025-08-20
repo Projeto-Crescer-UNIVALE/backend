@@ -7,6 +7,8 @@ import { PrismaService } from '../prisma.service';
 import { CreateOficinaDto } from './dto/create-oficina.dto';
 import { UpdateOficinaDto } from './dto/update-oficina.dto';
 import { Oficina } from 'generated/prisma';
+import { PaginationQueryDto } from 'src/common/utils/dto/pagination-query.dto';
+import { Paginate } from 'src/common/utils/pagination';
 
 @Injectable()
 export class OficinaService {
@@ -64,20 +66,44 @@ export class OficinaService {
     return novaOficina;
   }
 
-  async findAll(): Promise<Oficina[]> {
-    return this.prisma.oficina.findMany({
-      where: {
-        excluido_em: null,
+  async findAll(
+    query: PaginationQueryDto,
+  ): Promise<{ data: Oficina[]; meta: any }> {
+    const paginated = await Paginate<Oficina>(
+      {
+        page: query.page,
+        limit: query.limit,
+        search: query.search,
       },
+      {
+        includes: ['funcionario'],
+        orderBy: { id_oficina: 'asc' },
+        search: ['nome'],
+      },
+      this.prisma.oficina,
+    );
+
+    const ids = paginated.data.map((o) => o.id_oficina);
+
+    const data = await this.prisma.oficina.findMany({
+      where: { id_oficina: { in: ids }, excluido_em: null },
       include: {
         cronograma: true,
         funcionario: {
-          omit: {
-            senha: true,
+          select: {
+            id_funcionario: true,
+            id_perfil: true,
+            nome: true,
+            email: true,
+            telefone: true,
+            ativo: true,
           },
         },
       },
+      orderBy: { id_oficina: 'asc' },
     });
+
+    return { data, meta: paginated.meta };
   }
 
   async findOne(id_oficina: number): Promise<Oficina> {
@@ -183,4 +209,3 @@ export class OficinaService {
     });
   }
 }
-
