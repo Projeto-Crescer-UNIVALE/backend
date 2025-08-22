@@ -61,11 +61,6 @@ export class DiarioService {
   async update(idAluno: number, id_diario: number, dto: UpdateDiarioDto) {
     await this.findOne(idAluno, id_diario);
 
-    if (dto.id_autor) {
-      const autor = await this.prisma.funcionario.findUnique({ where: { id_funcionario: dto.id_autor } });
-      if (!autor) throw new BadRequestException(`Autor ${dto.id_autor} não existe.`);
-    }
-
     if (dto.id_oficina) {
       const oficina = await this.prisma.oficina.findUnique({ where: { id_oficina: dto.id_oficina } });
       if (!oficina) throw new BadRequestException(`Oficina ${dto.id_oficina} não existe.`);

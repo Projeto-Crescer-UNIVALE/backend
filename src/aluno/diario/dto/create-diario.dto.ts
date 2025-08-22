@@ -5,9 +5,7 @@ export class CreateDiarioDto {
   @IsInt()
   id_oficina?: number;
 
-  @IsInt()
-  id_autor: number;
-
+  
   @IsString()
   @IsNotEmpty()
   conteudo: string;
