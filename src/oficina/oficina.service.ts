@@ -8,7 +8,7 @@ import { CreateOficinaDto } from './dto/create-oficina.dto';
 import { UpdateOficinaDto } from './dto/update-oficina.dto';
 import { Oficina } from 'generated/prisma';
 import { PaginationQueryDto } from 'src/common/utils/dto/pagination-query.dto';
-import { Paginate } from 'src/common/utils/pagination';
+import { paginator } from 'src/common/utils/pagination';
 
 @Injectable()
 export class OficinaService {
@@ -69,7 +69,7 @@ export class OficinaService {
   async findAll(
     query: PaginationQueryDto,
   ): Promise<{ data: Oficina[]; meta: any }> {
-    const paginated = await Paginate<Oficina>(
+    const paginated = await paginator<Oficina>(
       {
         page: query.page,
         limit: query.limit,

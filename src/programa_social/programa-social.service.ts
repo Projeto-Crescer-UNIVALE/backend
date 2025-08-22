@@ -3,7 +3,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateProgramaSocialDto } from './dto/create-programa-social.dto';
 import { ProgramaSocial } from './entity/programa-social.entity';
-import { Paginate } from 'src/common/utils/pagination';
+import { paginator } from 'src/common/utils/pagination';
 import { PaginationQueryDto } from 'src/common/utils/dto/pagination-query.dto';
 
 @Injectable()
@@ -35,7 +35,7 @@ export class ProgramaSocialService {
   async findAll(
     query: PaginationQueryDto,
   ): Promise<{ data: ProgramaSocial[]; meta: any }> {
-    return Paginate<ProgramaSocial>(
+    return paginator<ProgramaSocial>(
       {
         page: query.page,
         limit: query.limit,

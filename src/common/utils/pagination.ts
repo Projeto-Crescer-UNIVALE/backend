@@ -4,7 +4,7 @@ import {
   PaginationOptions,
 } from 'nestjs-prisma-pagination';
 
-type PrismaDeLegate<E> = {
+type PrismaDelegate<E> = {
   count: (args?: any) => Promise<number>;
   findMany: (args?: any) => Promise<E[]>;
 };
@@ -18,9 +18,9 @@ interface ExtendedPaginationOptions extends PaginationOptions {
   disableInsensitiveMode?: boolean;
 }
 
-export async function Paginate<
+export async function paginator<
   E,
-  T extends PrismaDeLegate<E> = PrismaDeLegate<E>,
+  T extends PrismaDelegate<E> = PrismaDelegate<E>,
 >(
   params: ExtendedPaginationArgs = { page: 1, limit: 10 },
   options: ExtendedPaginationOptions,

@@ -6,7 +6,7 @@ import {
 import { PrismaService } from 'src/prisma.service';
 import { CreateDiarioDto } from './dto/create-diario.dto';
 import { UpdateDiarioDto } from './dto/update-diario.dto';
-import { Paginate } from 'src/common/utils/pagination';
+import { paginator } from 'src/common/utils/pagination';
 import { Diario } from 'generated/prisma';
 import { PaginationQueryDto } from 'src/common/utils/dto/pagination-query.dto';
 
@@ -50,7 +50,7 @@ export class DiarioService {
     });
     if (!aluno) throw new NotFoundException(`Aluno ${idAluno} não existe.`);
 
-    return Paginate<Diario>(
+    return paginator<Diario>(
       {
         page: query.page,
         limit: query.limit,

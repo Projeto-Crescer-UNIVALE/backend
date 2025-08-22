@@ -10,7 +10,7 @@ import { BcryptService } from 'src/auth/hashing/bcrypt.service';
 import { randomUUID } from 'node:crypto';
 import { MailerService } from '@nestjs-modules/mailer';
 import { PaginationQueryDto } from 'src/common/utils/dto/pagination-query.dto';
-import { Paginate } from 'src/common/utils/pagination';
+import { paginator } from 'src/common/utils/pagination';
 
 @Injectable()
 export class FuncionarioService {
@@ -68,7 +68,7 @@ export class FuncionarioService {
   }
 
   async findAll(query: PaginationQueryDto) {
-    const result = await Paginate<Funcionario>(
+    const result = await paginator<Funcionario>(
       {
         page: query.page,
         limit: query.limit,
