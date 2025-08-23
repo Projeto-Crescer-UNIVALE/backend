@@ -7,6 +7,7 @@ import {
   Delete,
   ParseIntPipe,
   Put,
+  Query,
 } from '@nestjs/common';
 import { FuncionarioService } from './funcionario.service';
 import { CreateFuncionarioDto } from './dto/create-funcionario.dto';
@@ -25,7 +26,7 @@ export class FuncionarioController {
   }
 
   @Get()
-  findAll(query: PaginationQueryDto) {
+  findAll(@Query() query: PaginationQueryDto) {
     return this.funcionariosService.findAll(query);
   }
 

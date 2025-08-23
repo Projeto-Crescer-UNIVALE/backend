@@ -8,7 +8,8 @@ import {
   Param,
   Delete,
   Put,
-  ParseIntPipe, // Para converter o ID da rota para número inteiro
+  ParseIntPipe,
+  Query, // Para converter o ID da rota para número inteiro
 } from '@nestjs/common';
 import { OficinaService } from './oficina.service';
 import { CreateOficinaDto } from './dto/create-oficina.dto';
@@ -39,7 +40,7 @@ export class OficinaController {
    * @returns Um array de todas as oficinas.
    */
   @Get()
-  findAll(query: PaginationQueryDto): Promise<{ data: Oficina[]; meta: any }> {
+  findAll(@Query() query: PaginationQueryDto) {
     return this.oficinaService.findAll(query);
   }
 

@@ -9,6 +9,7 @@ import {
   HttpCode,
   HttpStatus,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { PerfilService } from './perfil.service';
 import { CreatePerfilDto } from './dto/create-perfil.dto';
@@ -29,7 +30,7 @@ export class PerfilController {
   }
 
   @Get()
-  findAll(query: PaginationQueryDto) {
+  findAll(@Query() query: PaginationQueryDto) {
     return this.perfilService.findAll(query);
   }
 

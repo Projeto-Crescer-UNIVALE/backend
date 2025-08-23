@@ -7,6 +7,7 @@ import {
   Param,
   Body,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { DiarioService } from './diario.service';
 import { CreateDiarioDto } from './dto/create-diario.dto';
@@ -31,7 +32,7 @@ export class DiarioController {
   @Get()
   findAll(
     @Param('idAluno', ParseIntPipe) idAluno: number,
-    query: PaginationQueryDto,
+    @Query() query: PaginationQueryDto,
   ) {
     return this.diarioService.findAll(idAluno, query);
   }

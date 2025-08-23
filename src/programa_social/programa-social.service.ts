@@ -32,9 +32,7 @@ export class ProgramaSocialService {
     });
   }
 
-  async findAll(
-    query: PaginationQueryDto,
-  ): Promise<{ data: ProgramaSocial[]; meta: any }> {
+  async findAll(query: PaginationQueryDto) {
     return paginator<ProgramaSocial>(
       {
         page: query.page,

@@ -77,7 +77,7 @@ export class FuncionarioService {
       {
         includes: ['perfil'],
         orderBy: { id_funcionario: 'asc' },
-        search: ['id_funcionario', 'nome'],
+        search: ['email', 'nome'],
       },
       this.prisma.funcionario,
     );

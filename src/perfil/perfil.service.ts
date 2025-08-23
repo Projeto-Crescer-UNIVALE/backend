@@ -31,9 +31,7 @@ export class PerfilService {
     });
   }
 
-  async findAll(
-    query: PaginationQueryDto,
-  ): Promise<{ data: Perfil[]; meta: any }> {
+  async findAll(query: PaginationQueryDto) {
     return paginator<Perfil>(
       {
         page: query.page,
