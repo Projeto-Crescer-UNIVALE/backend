@@ -59,17 +59,10 @@ export class DiarioService {
       {
         includes: ['autor', 'oficina'],
         orderBy: { id_diario: 'desc' },
-        search: ['criado_em', 'id_diario'],
+        search: ['criado_em'],
       },
       this.prisma.diario,
     );
-
-    return this.prisma.diario.findMany({
-      where: {
-        id_aluno: idAluno,
-        excluido_em: null,
-      },
-    });
   }
 
   async findOne(idAluno: number, id_diario: number) {
