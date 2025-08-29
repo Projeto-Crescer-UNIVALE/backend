@@ -11,6 +11,7 @@ import { OficinaModule } from './oficina/oficina.module';
 import { AuthModule } from './auth/auth.module';
 import { DiarioModule } from './aluno/diario/diario.module'; 
 import { MailerModule } from '@nestjs-modules/mailer';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -33,7 +34,8 @@ import { MailerModule } from '@nestjs-modules/mailer';
     ProgramaSocialModule,
     OficinaModule,
     AuthModule,
-    DiarioModule
+    DiarioModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
