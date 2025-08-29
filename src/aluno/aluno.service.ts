@@ -57,7 +57,12 @@ export class AlunoService {
 
   async findAll(query: PaginationQueryDto) {
     return paginator<Aluno>(
-      { page: query.page, limit: query.limit, search: query.search },
+      {
+        page: query.page,
+        limit: query.limit,
+        search: query.search,
+        where: { excluido_em: null },
+      },
       {
         includes: ['programaSocial'],
         orderBy: { id_aluno: 'asc' },
@@ -137,8 +142,10 @@ export class AlunoService {
   async remove(id_aluno: number): Promise<Aluno> {
     await this.findOne(id_aluno);
 
-    return this.prisma.aluno.delete({
+    // 🔹 soft delete: marca excluido_em em vez de apagar
+    return this.prisma.aluno.update({
       where: { id_aluno: id_aluno },
+      data: { excluido_em: new Date() },
     });
   }
 }

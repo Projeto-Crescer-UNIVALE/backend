@@ -139,10 +139,13 @@ export class FuncionarioService {
   async remove(id_funcionario: number): Promise<Funcionario> {
     await this.findOne(id_funcionario);
 
-    return this.prisma.funcionario.delete({
+    return this.prisma.funcionario.update({
       where: { id_funcionario },
       omit: {
         senha: true,
+      },
+      data: {
+        excluido_em: new Date(),
       },
     });
   }
