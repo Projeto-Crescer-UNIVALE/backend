@@ -6,6 +6,8 @@ import {
 import { CreateAlunoDto } from './dto/create-aluno.dto';
 import { PrismaService } from 'src/prisma.service';
 import { Aluno } from 'generated/prisma';
+import { paginator } from 'src/common/utils/pagination';
+import { PaginationQueryDto } from '../common/utils/dto/pagination-query.dto';
 
 @Injectable()
 export class AlunoService {
@@ -53,13 +55,21 @@ export class AlunoService {
     return novoAluno;
   }
 
-  async findAll(): Promise<Aluno[]> {
-    return this.prisma.aluno.findMany({
-      where: { excluido_em: null }, 
-      include: {
-        programaSocial: true,
+  async findAll(query: PaginationQueryDto) {
+    return paginator<Aluno>(
+      {
+        page: query.page,
+        limit: query.limit,
+        search: query.search,
+        where: { excluido_em: null },
       },
-    });
+      {
+        includes: ['programaSocial'],
+        orderBy: { id_aluno: 'asc' },
+        search: ['nome', 'cpf'],
+      },
+      this.prisma.aluno,
+    );
   }
 
   async findOne(id_aluno: number): Promise<Aluno> {

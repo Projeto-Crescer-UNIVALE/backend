@@ -9,6 +9,8 @@ import { Funcionario } from './entities/funcionario.entity';
 import { BcryptService } from 'src/auth/hashing/bcrypt.service';
 import { randomUUID } from 'node:crypto';
 import { MailerService } from '@nestjs-modules/mailer';
+import { PaginationQueryDto } from 'src/common/utils/dto/pagination-query.dto';
+import { paginator } from 'src/common/utils/pagination';
 
 @Injectable()
 export class FuncionarioService {
@@ -65,12 +67,27 @@ export class FuncionarioService {
     return novoFuncionario;
   }
 
-  async findAll() {
-    return this.prisma.funcionario.findMany({
-      omit: {
-        senha: true,
+  async findAll(query: PaginationQueryDto) {
+    const result = await paginator<Funcionario>(
+      {
+        page: query.page,
+        limit: query.limit,
+        search: query.search,
       },
+      {
+        includes: ['perfil'],
+        orderBy: { id_funcionario: 'asc' },
+        search: ['email', 'nome'],
+      },
+      this.prisma.funcionario,
+    );
+
+    result.data = result.data.map((f: any) => {
+      const { senha, ...rest } = f;
+      return rest;
     });
+
+    return result;
   }
 
   async findOne(id_funcionario: number) {

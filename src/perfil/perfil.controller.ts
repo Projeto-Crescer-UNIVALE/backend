@@ -9,12 +9,14 @@ import {
   HttpCode,
   HttpStatus,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { PerfilService } from './perfil.service';
 import { CreatePerfilDto } from './dto/create-perfil.dto';
 import { UpdatePerfilDto } from './dto/update-perfil.dto';
 import { PerfilRequired } from 'src/auth/decorator/perfil.decorator';
 import { Perfil } from 'src/common/perfil.enum';
+import { PaginationQueryDto } from 'src/common/utils/dto/pagination-query.dto';
 
 @PerfilRequired(Perfil.ADMINISTRADOR)
 @Controller('perfil')
@@ -28,8 +30,8 @@ export class PerfilController {
   }
 
   @Get()
-  findAll() {
-    return this.perfilService.findAll();
+  findAll(@Query() query: PaginationQueryDto) {
+    return this.perfilService.findAll(query);
   }
 
   @Get(':id')

@@ -7,6 +7,8 @@ import { PrismaService } from '../prisma.service';
 import { CreateOficinaDto } from './dto/create-oficina.dto';
 import { UpdateOficinaDto } from './dto/update-oficina.dto';
 import { Oficina } from 'generated/prisma';
+import { PaginationQueryDto } from 'src/common/utils/dto/pagination-query.dto';
+import { paginator } from 'src/common/utils/pagination';
 
 @Injectable()
 export class OficinaService {
@@ -64,20 +66,35 @@ export class OficinaService {
     return novaOficina;
   }
 
-  async findAll(): Promise<Oficina[]> {
-    return this.prisma.oficina.findMany({
-      where: {
-        excluido_em: null,
+  async findAll(query: PaginationQueryDto) {
+    const paginated = await paginator<Oficina>(
+      {
+        page: query.page,
+        limit: query.limit,
+        search: query.search,
+        where: { excluido_em: null },
       },
-      include: {
-        cronograma: true,
-        funcionario: {
-          omit: {
-            senha: true,
+      {
+        orderBy: { id_oficina: 'asc' },
+        search: ['nome'],
+        include: {
+          cronograma: true,
+          funcionario: {
+            select: {
+              id_funcionario: true,
+              id_perfil: true,
+              nome: true,
+              email: true,
+              telefone: true,
+              ativo: true,
+            },
           },
         },
       },
-    });
+      this.prisma.oficina,
+    );
+
+    return paginated;
   }
 
   async findOne(id_oficina: number): Promise<Oficina> {
@@ -183,4 +200,3 @@ export class OficinaService {
     });
   }
 }
-
