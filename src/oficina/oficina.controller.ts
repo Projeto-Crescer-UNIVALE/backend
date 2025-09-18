@@ -1,76 +1,100 @@
-// src/oficina/oficina.controller.ts
-
 import {
-  Body,
   Controller,
-  Post,
   Get,
+  Post,
   Param,
-  Delete,
+  Body,
   Put,
-  ParseIntPipe, // Para converter o ID da rota para número inteiro
+  Delete,
+  ParseIntPipe,
+  UseGuards,
+  Request,
+  Query,
 } from '@nestjs/common';
 import { OficinaService } from './oficina.service';
 import { CreateOficinaDto } from './dto/create-oficina.dto';
 import { UpdateOficinaDto } from './dto/update-oficina.dto';
-import { Oficina } from 'generated/prisma';
-import { PerfilRequired } from 'src/auth/decorator/perfil.decorator';
-import { Perfil } from 'src/common/perfil.enum';
+import { CreateDiarioDto } from './dto/create-diario.dto';
 
-@PerfilRequired(Perfil.ADMINISTRADOR)
-@Controller('oficina') // Define o prefixo da rota para este controlador
+import { AuthTokenGuard } from '../auth/guard/auth-token.guard';
+import { ProfessorGuard } from './guards/professor.guard';
+
+@Controller('oficinas')
 export class OficinaController {
   constructor(private readonly oficinaService: OficinaService) {}
 
-  /**
-   * Endpoint POST para criar uma nova oficina.
-   * Recebe os dados da oficina no corpo da requisição.
-   * @param dto O objeto de transferência de dados (DTO) para criação de oficina.
-   * @returns A oficina recém-criada.
-   */
+  // ------------------------------
+  // CRUD de Oficinas (Administrador)
+  // ------------------------------
   @Post()
-  create(@Body() dto: CreateOficinaDto): Promise<Oficina> {
+  create(@Body() dto: CreateOficinaDto) {
     return this.oficinaService.create(dto);
   }
 
-  /**
-   * Endpoint GET para buscar todas as oficinas.
-   * @returns Um array de todas as oficinas.
-   */
   @Get()
-  findAll(): Promise<Oficina[]> {
+  findAll() {
     return this.oficinaService.findAll();
   }
 
-  /**
-   * Endpoint GET para buscar uma oficina específica por ID.
-   * @param id O ID da oficina (extraído da URL e convertido para número).
-   * @returns A oficina encontrada.
-   */
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<Oficina> {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.oficinaService.findOne(id);
   }
 
-  /**
-   * Endpoint PUT para atualizar uma oficina existente por ID.
-   * Recebe o ID da oficina na URL e os dados de atualização no corpo da requisição.
-   * @param id O ID da oficina a ser atualizada.
-   * @param dto O DTO contendo os dados para atualização da oficina.
-   * @returns A oficina atualizada.
-   */
   @Put(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateOficinaDto): Promise<Oficina> {
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateOficinaDto) {
     return this.oficinaService.update(id, dto);
   }
 
-  /**
-   * Endpoint DELETE para remover uma oficina por ID.
-   * @param id O ID da oficina a ser removida.
-   * @returns A oficina que foi removida.
-   */
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number): Promise<Oficina> {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.oficinaService.remove(id);
+  }
+
+  // ------------------------------
+  // Endpoints para Professores
+  // ------------------------------
+  @UseGuards(AuthTokenGuard, ProfessorGuard)
+  @Get(':id_oficina/alunos')
+  async getAlunosByOficina(
+    @Param('id_oficina', ParseIntPipe) id_oficina: number,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+  ) {
+    return this.oficinaService.getAlunosByOficina(id_oficina, Number(page), Number(limit));
+  }
+
+  @UseGuards(AuthTokenGuard, ProfessorGuard)
+  @Get(':id_oficina/alunos/:id_aluno')
+  async getAlunoById(
+    @Param('id_oficina', ParseIntPipe) id_oficina: number,
+    @Param('id_aluno', ParseIntPipe) id_aluno: number,
+  ) {
+    return this.oficinaService.getAlunoById(id_oficina, id_aluno);
+  }
+
+  @UseGuards(AuthTokenGuard, ProfessorGuard)
+  @Get(':id_oficina/diarios')
+  async getDiarios(
+    @Param('id_oficina', ParseIntPipe) id_oficina: number,
+    @Request() req,
+  ) {
+    const professorId = req.user?.id_funcionario ?? req.user?.id;
+    return this.oficinaService.getDiariosByOficina(id_oficina, professorId);
+  }
+
+  @UseGuards(AuthTokenGuard, ProfessorGuard)
+  @Post(':id_oficina/diarios')
+  async createDiario(
+    @Param('id_oficina', ParseIntPipe) id_oficina: number,
+    @Request() req,
+    @Body() dto: CreateDiarioDto,
+  ) {
+    const professorId = req.user?.id_funcionario ?? req.user?.id;
+    return this.oficinaService.createDiario({
+      ...dto,
+      id_oficina,
+      id_autor: professorId,
+    });
   }
 }

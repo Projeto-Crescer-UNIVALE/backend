@@ -1,186 +1,187 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
-import { CreateOficinaDto } from './dto/create-oficina.dto';
-import { UpdateOficinaDto } from './dto/update-oficina.dto';
-import { Oficina } from 'generated/prisma';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 @Injectable()
 export class OficinaService {
-  constructor(private prisma: PrismaService) {}
-
-  private convertTimeStringToDate(timeString: string): Date {
-    if (!/^\d{2}:\d{2}:\d{2}$/.test(timeString)) {
-      console.error(`Formato de hora inesperado: ${timeString}`);
-      return new Date('Invalid Date');
-    }
-    const [hours, minutes, seconds] = timeString.split(':').map(Number);
-    return new Date(2000, 0, 1, hours, minutes, seconds);
-  }
-
-  async create(createOficinaDto: CreateOficinaDto): Promise<Oficina> {
-    const { cronograma, ...oficinaData } = createOficinaDto;
-
-    const existeOficina = await this.prisma.oficina.findFirst({
-      where: {
-        nome: oficinaData.nome,
-      },
-    });
-
-    if (existeOficina) {
-      throw new ConflictException('Já existe uma oficina com este nome.');
-    }
-
-    const funcionario = await this.prisma.funcionario.findUnique({
-      where: { id_funcionario: oficinaData.id_funcionario },
-    });
-
-    if (!funcionario) {
-      throw new NotFoundException(
-        `Funcionário com ID ${oficinaData.id_funcionario} não encontrado.`,
-      );
-    }
-
-    const novaOficina = await this.prisma.oficina.create({
-      data: {
-        ...oficinaData,
-        cronograma: {
-          createMany: {
-            data: cronograma.map((cronograma) => ({
-              dia: cronograma.dia,
-              hora_inicio: this.convertTimeStringToDate(cronograma.hora_inicio),
-              hora_fim: this.convertTimeStringToDate(cronograma.hora_fim),
-            })),
-          },
-        },
-      },
+  // ------------------------------
+  // CRUD de Oficinas (Administrador)
+  // ------------------------------
+  async findAll() {
+    return await prisma.oficina.findMany({
       include: {
+        funcionario: true,
         cronograma: true,
-      },
-    });
-    return novaOficina;
-  }
-
-  async findAll(): Promise<Oficina[]> {
-    return this.prisma.oficina.findMany({
-      where: {
-        excluido_em: null,
-      },
-      include: {
-        cronograma: true,
-        funcionario: {
-          omit: {
-            senha: true,
-          },
-        },
+        diarios: true,
       },
     });
   }
 
-  async findOne(id_oficina: number): Promise<Oficina> {
-    const oficina = await this.prisma.oficina.findUnique({
+  async findOne(id_oficina: number) {
+    const oficina = await prisma.oficina.findUnique({
       where: { id_oficina },
       include: {
+        funcionario: true,
         cronograma: true,
-        funcionario: {
-          omit: {
-            senha: true,
-          },
-        },
+        diarios: true,
       },
     });
 
     if (!oficina) {
-      throw new NotFoundException(
-        `Oficina com ID ${id_oficina} não encontrada.`,
-      );
+      throw new NotFoundException('Oficina não encontrada');
     }
+
     return oficina;
+  }
+
+  async create(data: {
+    nome: string;
+    descricao: string;
+    status: boolean;
+    id_funcionario: number;
+  }) {
+    return await prisma.oficina.create({ data });
   }
 
   async update(
     id_oficina: number,
-    updateOficinaDto: UpdateOficinaDto,
-  ): Promise<Oficina> {
-    await this.findOne(id_oficina);
-
-    const { cronograma, ...oficinaData } = updateOficinaDto;
-
-    const existingOficinaWithNome = await this.prisma.oficina.findFirst({
-      where: {
-        nome: oficinaData.nome,
-        NOT: {
-          id_oficina: id_oficina,
-        },
-      },
-    });
-
-    if (existingOficinaWithNome) {
-      throw new ConflictException('Já existe outra oficina com este nome.');
+    data: Partial<{ nome: string; descricao: string; status: boolean }>,
+  ) {
+    try {
+      return await prisma.oficina.update({
+        where: { id_oficina },
+        data,
+      });
+    } catch {
+      throw new NotFoundException('Oficina não encontrada para atualizar');
     }
+  }
 
-    const funcionario = await this.prisma.funcionario.findUnique({
-      where: { id_funcionario: oficinaData.id_funcionario },
-    });
-
-    if (!funcionario) {
-      throw new NotFoundException(
-        `Funcionário com ID ${oficinaData.id_funcionario} não encontrado.`,
-      );
+  async remove(id_oficina: number) {
+    try {
+      return await prisma.oficina.update({
+        where: { id_oficina },
+        data: { excluido_em: new Date() },
+      });
+    } catch {
+      throw new NotFoundException('Oficina não encontrada para excluir');
     }
+  }
 
-    return await this.prisma.oficina.update({
-      where: { id_oficina },
+  // ------------------------------
+  // Cronograma
+  // ------------------------------
+  async addCronograma(
+    id_oficina: number,
+    dia: number,
+    hora_inicio: string,
+    hora_fim: string,
+  ) {
+    return await prisma.oficinaCronograma.create({
       data: {
-        ...oficinaData,
-        cronograma: {
-          deleteMany: {
-            id_oficina,
-            NOT: cronograma.map(({ dia }) => ({ dia })),
-          },
-          upsert: cronograma.map((crono) => ({
-            where: {
-              id_oficina_cronograma: {
-                dia: crono.dia,
-                id_oficina,
-              },
-            },
-            create: {
-              dia: crono.dia,
-              hora_inicio: this.convertTimeStringToDate(crono.hora_inicio),
-              hora_fim: this.convertTimeStringToDate(crono.hora_fim),
-            },
-            update: {
-              dia: crono.dia,
-              hora_inicio: this.convertTimeStringToDate(crono.hora_inicio),
-              hora_fim: this.convertTimeStringToDate(crono.hora_fim),
-            },
-          })),
-        },
-      },
-      include: {
-        cronograma: true,
-        funcionario: {
-          omit: {
-            senha: true,
-          },
-        },
+        id_oficina,
+        dia,
+        hora_inicio: new Date('1970-01-01T${hora_inicio}:00'),
+        hora_fim: new Date('1970-01-01T${hora_fim}:00'),
       },
     });
   }
 
-  async remove(id_oficina: number): Promise<Oficina> {
-    await this.findOne(id_oficina);
-
-    return this.prisma.oficina.update({
+  async getCronogramas(id_oficina: number) {
+    return await prisma.oficinaCronograma.findMany({
       where: { id_oficina },
-      data: {
-        excluido_em: new Date(),
+    });
+  }
+
+  // ------------------------------
+  // Alunos por oficina
+  // ------------------------------
+  async getAlunosByOficina(id_oficina: number, page = 1, limit = 10) {
+    const skip = (page - 1) * limit;
+
+    const alunos = await prisma.aluno.findMany({
+      skip,
+      take: limit,
+      where: {
+        diarios: {
+          some: { id_oficina },
+        },
+      },
+      select: {
+        id_aluno: true,
+        nome: true,
+        data_nascimento: true,
+      },
+    });
+
+    const total = await prisma.aluno.count({
+      where: {
+        diarios: {
+          some: { id_oficina },
+        },
+      },
+    });
+
+    return {
+      data: alunos,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
+  }
+
+  async getAlunoById(id_oficina: number, id_aluno: number) {
+    const aluno = await prisma.aluno.findFirst({
+      where: {
+        id_aluno,
+        diarios: { some: { id_oficina } },
+      },
+      select: {
+        id_aluno: true,
+        nome: true,
+        data_nascimento: true,
+      },
+    });
+
+    if (!aluno) {
+      throw new NotFoundException(
+        'Aluno não encontrado nesta oficina ou não existe',
+      );
+    }
+
+    return aluno;
+  }
+
+  // ------------------------------
+  // Diários (Professor)
+  // ------------------------------
+  async createDiario(data: {
+    id_aluno: number;
+    id_oficina: number;
+    id_autor: number;
+    conteudo: string;
+  }) {
+    return await prisma.diario.create({ data });
+  }
+
+  async getDiariosByOficina(id_oficina: number, professorId: number) {
+    return await prisma.diario.findMany({
+      where: {
+        id_oficina,
+        id_autor: professorId,
+      },
+      include: {
+        aluno: {
+          select: { id_aluno: true, nome: true },
+        },
+        autor: {
+          select: { id_funcionario: true, nome: true },
+        },
+        oficina: {
+          select: { id_oficina: true, nome: true },
+        },
       },
     });
   }
 }
-

@@ -11,4 +11,4 @@ export class UpdateOficinaDto extends OmitType(CreateOficinaDto, [
   @Type(() => UpdateOficinaCronogramaDto)
   cronograma: UpdateOficinaCronogramaDto[];
 }
-export class UpdateOficinaCronogramaDto extends OficinaCronogramaDto {}
+export class UpdateOficinaCronogramaDto extends OficinaCronogramaDto {} 
