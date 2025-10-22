@@ -30,6 +30,7 @@ model Aluno {
 
   programaSocial ProgramaSocial[]
   diarios                Diario[]
+  oficinas         AlunoOficina[]
 
   criado_em     DateTime  @default(now())
   atualizado_em DateTime  @updatedAt
@@ -116,7 +117,8 @@ model Oficina {
   criado_em      DateTime     @default(now())
   atualizado_em  DateTime     @updatedAt
   excluido_em    DateTime?
-  diarios        Diario[] 
+  diarios        Diario[]
+  alunos         AlunoOficina[] 
 
   @@map("oficina")
 }
@@ -150,4 +152,17 @@ model Diario {
   autor         Funcionario  @relation(fields: [id_autor], references: [id_funcionario])
   aluno         Aluno        @relation(fields: [id_aluno], references: [id_aluno])
   oficina       Oficina?     @relation(fields: [id_oficina], references: [id_oficina]) //  reativado relacionamento
+}
+
+model AlunoOficina {
+  id_aluno Int
+  id_oficina Int
+  data_inscricao DateTime @default(now()) @map("data_inscricao")
+  ativo Boolean @default(true) @map("ativo")
+
+  aluno Aluno @relation(fields: [id_aluno], references: [id_aluno], onDelete: Cascade)
+  oficina Oficina @relation(fields: [id_oficina], references: [id_oficina], onDelete: Cascade)
+
+  @@id([id_aluno, id_oficina])
+  @@map("aluno_oficina")
 }

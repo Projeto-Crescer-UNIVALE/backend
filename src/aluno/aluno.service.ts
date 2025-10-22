@@ -37,6 +37,23 @@ export class AlunoService {
       }
     }
 
+    const oficinasIds = criarAlunoDto.oficinas || [];
+    if (oficinasIds.length > 0) {
+      const oficinasValidas = await this.prisma.oficina.findMany({
+        where: {
+          id_oficina: { in: oficinasIds },
+          excluido_em: null,
+        },
+      });
+
+      if (oficinasValidas.length !== oficinasIds.length) {
+        const idsEncontrados = oficinasValidas.map((o) => o.id_oficina);
+        const idsNaoEncontrados = oficinasIds.filter(
+          (id) => !idsEncontrados.includes(id),
+        );
+      }
+    }
+
     const novoAluno = await this.prisma.aluno.create({
       data: {
         ...criarAlunoDto,
@@ -46,9 +63,30 @@ export class AlunoService {
               id_programa_social: programa,
             })) || [],
         },
+        oficinas:
+          oficinasIds.length > 0
+            ? {
+                create: oficinasIds.map((id_oficina) => ({
+                  id_oficina,
+                  ativo: true,
+                })),
+              }
+            : undefined,
       },
       include: {
         programaSocial: true,
+        oficinas: {
+          include: {
+            oficina: {
+              select: {
+                id_oficina: true,
+                nome: true,
+                descricao: true,
+                status: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -64,7 +102,7 @@ export class AlunoService {
         where: { excluido_em: null },
       },
       {
-        includes: ['programaSocial'],
+        includes: ['programaSocial', 'oficinas.oficina'],
         orderBy: { id_aluno: 'asc' },
         search: ['nome', 'cpf'],
       },
@@ -77,6 +115,19 @@ export class AlunoService {
       where: { id_aluno },
       include: {
         programaSocial: true,
+        oficinas: {
+          where: { ativo: true },
+          include: {
+            oficina: {
+              select: {
+                id_oficina: true,
+                nome: true,
+                descricao: true,
+                status: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -120,10 +171,74 @@ export class AlunoService {
       }
     }
 
+    const oficinasIds = updateAlunoDTo.oficinas || [];
+
+    if (oficinasIds !== undefined) {
+      if (oficinasIds.length > 0) {
+        const oficinasValidas = await this.prisma.oficina.findMany({
+          where: {
+            id_oficina: { in: oficinasIds },
+            excluido_em: null,
+          },
+        });
+
+        if (oficinasValidas.length !== oficinasIds.length) {
+          const idsEncontrados = oficinasValidas.map((o) => o.id_oficina);
+          const idsNaoEncontrados = oficinasIds.filter(
+            (id) => !idsEncontrados.includes(id),
+          );
+          throw new NotFoundException(
+            `Oficina(s) com ID(s) ${idsNaoEncontrados.join(', ')} não encontrada(s).`,
+          );
+        }
+      }
+    }
+
+    const oficinasAtuais = await this.prisma.alunoOficina.findMany({
+      where: { id_aluno },
+      select: { id_oficina: true },
+    });
+
+    const oficinasAtuaisIds = oficinasAtuais.map((o) => o.id_oficina);
+
+    const oficinasPraAdicionar = oficinasIds.filter(
+      (id) => !oficinasAtuaisIds.includes(id),
+    );
+
+    const oficinasPraRemover = oficinasIds.filter(
+      (id) => !oficinasIds.includes(id),
+    );
+
+    if (oficinasPraRemover.length > 0 || oficinasPraAdicionar.length > 0) {
+      await this.prisma.$transaction([
+        ...oficinasPraRemover.map((id_oficina) =>
+          this.prisma.alunoOficina.delete({
+            where: {
+              id_aluno_id_oficina: {
+                id_aluno,
+                id_oficina,
+              },
+            },
+          }),
+        ),
+        ...oficinasPraAdicionar.map((id_oficina) =>
+          this.prisma.alunoOficina.create({
+            data: {
+              id_aluno,
+              id_oficina,
+              ativo: true,
+            },
+          }),
+        ),
+      ]);
+    }
+
+    const { oficinas, ...dadosSemOficinas } = updateAlunoDTo;
+
     const alunoAtualizado = await this.prisma.aluno.update({
       where: { id_aluno },
       data: {
-        ...updateAlunoDTo,
+        ...dadosSemOficinas,
         programaSocial: {
           set:
             updateAlunoDTo.programaSocial.map((programa) => ({
@@ -133,6 +248,19 @@ export class AlunoService {
       },
       include: {
         programaSocial: true,
+        oficinas: {
+          where: { ativo: true },
+          include: {
+            oficina: {
+              select: {
+                id_oficina: true,
+                nome: true,
+                descricao: true,
+                status: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -147,5 +275,32 @@ export class AlunoService {
       where: { id_aluno: id_aluno },
       data: { excluido_em: new Date() },
     });
+  }
+
+  async findAlunosByOficina(id_oficina: number) {
+    const alunos = await this.prisma.alunoOficina.findMany({
+      where: {
+        id_oficina,
+        ativo: true,
+        aluno: {
+          excluido_em: null,
+          ativo: true,
+        },
+      },
+      include: {
+        aluno: {
+          select: {
+            id_aluno: true,
+            nome: true,
+            cpf: true,
+            telefone: true,
+            grupo_scfv: true,
+            data_nascimento: true,
+          },
+        },
+      },
+    });
+
+    return alunos.map((ao) => ao.aluno);
   }
 }

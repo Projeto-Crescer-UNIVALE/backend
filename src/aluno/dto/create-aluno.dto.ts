@@ -5,6 +5,7 @@ import {
   IsDate,
   IsNotEmpty,
   IsNumber,
+  IsNumberString,
   IsOptional,
   IsString,
   Length,
@@ -93,4 +94,9 @@ export class CreateAlunoDto {
   @IsArray()
   @IsNumber({}, { each: true })
   programaSocial: number[];
+
+  @IsOptional()
+  @IsArray()
+  @IsNumber({}, { each: true })
+  oficinas?: number[];
 }
