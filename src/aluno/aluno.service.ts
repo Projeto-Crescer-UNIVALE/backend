@@ -51,6 +51,9 @@ export class AlunoService {
         const idsNaoEncontrados = oficinasIds.filter(
           (id) => !idsEncontrados.includes(id),
         );
+        throw new NotFoundException(
+          `Oficina(s) com ID(s) ${idsNaoEncontrados.join(', ')} não encontrada(s).`,
+        );
       }
     }
 
@@ -76,15 +79,9 @@ export class AlunoService {
       include: {
         programaSocial: true,
         oficinas: {
+          where: { ativo: true },
           include: {
-            oficina: {
-              select: {
-                id_oficina: true,
-                nome: true,
-                descricao: true,
-                status: true,
-              },
-            },
+            oficina: true,
           },
         },
       },
@@ -118,14 +115,7 @@ export class AlunoService {
         oficinas: {
           where: { ativo: true },
           include: {
-            oficina: {
-              select: {
-                id_oficina: true,
-                nome: true,
-                descricao: true,
-                status: true,
-              },
-            },
+            oficina: true,
           },
         },
       },
@@ -172,56 +162,56 @@ export class AlunoService {
     }
 
     const oficinasIds = updateAlunoDTo.oficinas || [];
+    if (oficinasIds.length > 0) {
+      const oficinasValidas = await this.prisma.oficina.findMany({
+        where: {
+          id_oficina: { in: oficinasIds },
+          excluido_em: null,
+        },
+      });
 
-    if (oficinasIds !== undefined) {
-      if (oficinasIds.length > 0) {
-        const oficinasValidas = await this.prisma.oficina.findMany({
-          where: {
-            id_oficina: { in: oficinasIds },
-            excluido_em: null,
-          },
-        });
-
-        if (oficinasValidas.length !== oficinasIds.length) {
-          const idsEncontrados = oficinasValidas.map((o) => o.id_oficina);
-          const idsNaoEncontrados = oficinasIds.filter(
-            (id) => !idsEncontrados.includes(id),
-          );
-          throw new NotFoundException(
-            `Oficina(s) com ID(s) ${idsNaoEncontrados.join(', ')} não encontrada(s).`,
-          );
-        }
+      if (oficinasValidas.length !== oficinasIds.length) {
+        const idsEncontrados = oficinasValidas.map((o) => o.id_oficina);
+        const idsNaoEncontrados = oficinasIds.filter(
+          (id) => !idsEncontrados.includes(id),
+        );
+        throw new NotFoundException(
+          `Oficina(s) com ID(s) ${idsNaoEncontrados.join(', ')} não encontrada(s).`,
+        );
       }
     }
 
-    const oficinasAtuais = await this.prisma.alunoOficina.findMany({
+    // Buscar todos os vínculos (ativos e inativos)
+    const vinculosExistentes = await this.prisma.alunoOficina.findMany({
       where: { id_aluno },
-      select: { id_oficina: true },
+      select: { id_oficina: true, ativo: true },
     });
 
-    const oficinasAtuaisIds = oficinasAtuais.map((o) => o.id_oficina);
-
-    const oficinasPraAdicionar = oficinasIds.filter(
-      (id) => !oficinasAtuaisIds.includes(id),
+    const vinculosMap = new Map(
+      vinculosExistentes.map((v) => [v.id_oficina, v.ativo]),
     );
 
-    const oficinasPraRemover = oficinasIds.filter(
-      (id) => !oficinasIds.includes(id),
-    );
+    const operacoes: any[] = [];
 
-    if (oficinasPraRemover.length > 0 || oficinasPraAdicionar.length > 0) {
-      await this.prisma.$transaction([
-        ...oficinasPraRemover.map((id_oficina) =>
-          this.prisma.alunoOficina.delete({
-            where: {
-              id_aluno_id_oficina: {
-                id_aluno,
-                id_oficina,
+    // Para cada oficina no array de entrada
+    for (const id_oficina of oficinasIds) {
+      if (vinculosMap.has(id_oficina)) {
+        // Vínculo existe
+        if (!vinculosMap.get(id_oficina)) {
+          // Se está inativo, reativar
+          operacoes.push(
+            this.prisma.alunoOficina.update({
+              where: {
+                id_aluno_id_oficina: { id_aluno, id_oficina },
               },
-            },
-          }),
-        ),
-        ...oficinasPraAdicionar.map((id_oficina) =>
+              data: { ativo: true },
+            }),
+          );
+        }
+        // Se já está ativo, não faz nada
+      } else {
+        // Vínculo não existe, criar
+        operacoes.push(
           this.prisma.alunoOficina.create({
             data: {
               id_aluno,
@@ -229,8 +219,25 @@ export class AlunoService {
               ativo: true,
             },
           }),
-        ),
-      ]);
+        );
+      }
+    }
+
+    for (const [id_oficina, ativo] of vinculosMap) {
+      if (ativo && !oficinasIds.includes(id_oficina)) {
+        operacoes.push(
+          this.prisma.alunoOficina.update({
+            where: {
+              id_aluno_id_oficina: { id_aluno, id_oficina },
+            },
+            data: { ativo: false },
+          }),
+        );
+      }
+    }
+
+    if (operacoes.length > 0) {
+      await this.prisma.$transaction(operacoes);
     }
 
     const { oficinas, ...dadosSemOficinas } = updateAlunoDTo;
@@ -251,14 +258,7 @@ export class AlunoService {
         oficinas: {
           where: { ativo: true },
           include: {
-            oficina: {
-              select: {
-                id_oficina: true,
-                nome: true,
-                descricao: true,
-                status: true,
-              },
-            },
+            oficina: true,
           },
         },
       },
