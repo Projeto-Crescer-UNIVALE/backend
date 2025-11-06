@@ -273,7 +273,7 @@ export class AlunoService {
     // 🔹 soft delete: marca excluido_em em vez de apagar
     return this.prisma.aluno.update({
       where: { id_aluno: id_aluno },
-      data: { excluido_em: new Date() },
+      data: { excluido_em: new Date(), ativo: false },
     });
   }
 
