@@ -30,6 +30,11 @@ export class FuncionarioController {
     return this.funcionariosService.findAll(query);
   }
 
+  @Get('listar/professores')
+  findProfessores() {
+    return this.funcionariosService.findProfessores();
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.funcionariosService.findOne(id);

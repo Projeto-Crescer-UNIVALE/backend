@@ -196,6 +196,7 @@ export class OficinaService {
       where: { id_oficina },
       data: {
         excluido_em: new Date(),
+        status: false,
       },
     });
   }

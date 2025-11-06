@@ -146,6 +146,7 @@ export class FuncionarioService {
       },
       data: {
         excluido_em: new Date(),
+        ativo: false,
       },
     });
   }
@@ -193,5 +194,19 @@ export class FuncionarioService {
     });
 
     return { sucesso: true };
+  }
+
+  async findProfessores() {
+    return this.prisma.funcionario.findMany({
+      where: {
+        perfil: {
+          nome: 'Professor',
+        },
+        ativo: true,
+      },
+      include: {
+        perfil: true,
+      },
+    });
   }
 }
