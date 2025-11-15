@@ -59,14 +59,23 @@ export class FuncionarioService {
       });
       const tokenUrl = `${process.env.FRONT_URL}/auth/criar-senha?token=${token}`;
       
-      await this.mailerService.sendMail({
-        to: novoFuncionario.email,
-        from: process.env.EMAIL_SENDER,
-        subject: 'Autenticação Projeto Crescer',
-        html: `<p>Olá ${novoFuncionario.nome}</p><br>
-        <p>Utilize o link abaixo para acessar sua conta pela primeira vez e definir sua senha. Não o compartilhe com ninguém.</p><br>
-        <a href="${tokenUrl}">${tokenUrl}</a>`,
-      });
+      try {
+        await this.mailerService.sendMail({
+          to: novoFuncionario.email,
+          from: process.env.EMAIL_SENDER,
+          subject: 'Autenticação Projeto Crescer',
+          html: `<p>Olá ${novoFuncionario.nome}</p><br>
+          <p>Utilize o link abaixo para acessar sua conta pela primeira vez e definir sua senha. Não o compartilhe com ninguém.</p><br>
+          <a href="${tokenUrl}">${tokenUrl}</a>`,
+        });
+      } catch (error) {
+        console.error('Erro ao enviar e-mail:', {
+          to: novoFuncionario.email,
+          from: process.env.EMAIL_SENDER,
+          tokenUrl,
+          error,
+        });
+      }
       
       return novoFuncionario;
     });
