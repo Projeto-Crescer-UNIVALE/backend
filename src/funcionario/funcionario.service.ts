@@ -73,6 +73,7 @@ export class FuncionarioService {
         page: query.page,
         limit: query.limit,
         search: query.search,
+        where: { ativo: true },
       },
       {
         includes: ['perfil'],
