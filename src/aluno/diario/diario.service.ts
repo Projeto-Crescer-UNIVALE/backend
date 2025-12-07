@@ -52,6 +52,7 @@ export class DiarioService {
 
     return paginator<Diario>(
       {
+        where: { id_aluno: idAluno },
         page: query.page,
         limit: query.limit,
         search: query.search,
