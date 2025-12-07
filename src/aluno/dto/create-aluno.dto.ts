@@ -5,6 +5,7 @@ import {
   IsDate,
   IsNotEmpty,
   IsNumber,
+  IsNumberString,
   IsOptional,
   IsString,
   Length,
@@ -27,7 +28,7 @@ export class CreateAlunoDto {
   cpf: string;
 
   @IsString()
-  @Length(11, 11, { message: 'Deve ter 11 caracteres.' })
+  @Length(7, 11, { message: 'Deve ter entre 7 e 11 caracteres.' })
   @IsNotEmpty()
   rg: string;
 
@@ -93,4 +94,8 @@ export class CreateAlunoDto {
   @IsArray()
   @IsNumber({}, { each: true })
   programaSocial: number[];
+
+  @IsArray()
+  @IsNumber({}, { each: true })
+  oficinas: number[];
 }

@@ -30,41 +30,55 @@ export class FuncionarioService {
     if (existeFuncionario) {
       throw new ConflictException('Já existe um funcionário com este e-mail.');
     }
-
-    const senhaTemporaria = randomUUID();
-    const senhaHash = await this.bcryptService.hash(senhaTemporaria);
-
-    const novoFuncionario = await this.prisma.funcionario.create({
-      data: {
-        nome: criarFuncionarioDto.nome,
-        email: criarFuncionarioDto.email,
-        senha: senhaHash,
-        telefone: criarFuncionarioDto.telefone,
-        ativo: criarFuncionarioDto.ativo,
-        perfil: {
-          connect: { id_perfil: criarFuncionarioDto.id_perfil },
+    
+    return await this.prisma.$transaction(async (prisma) => {
+      const senhaTemporaria = randomUUID();
+      const senhaHash = await this.bcryptService.hash(senhaTemporaria);
+  
+      const novoFuncionario = await prisma.funcionario.create({
+        data: {
+          nome: criarFuncionarioDto.nome,
+          email: criarFuncionarioDto.email,
+          senha: senhaHash,
+          telefone: criarFuncionarioDto.telefone,
+          ativo: criarFuncionarioDto.ativo,
+          perfil: {
+            connect: { id_perfil: criarFuncionarioDto.id_perfil },
+          },
         },
-      },
-    });
+      });
+  
+      const token = randomUUID();
+  
+      await prisma.token.create({
+        data: {
+          valor: token,
+          tipo: 'primeiro_acesso',
+          funcionarioId: novoFuncionario.id_funcionario,
+        },
+      });
+      const tokenUrl = `${process.env.FRONT_URL}/create-password/${token}`;
+      
+      try {
+        await this.mailerService.sendMail({
+          to: novoFuncionario.email,
+          from: process.env.EMAIL_SENDER,
+          subject: 'Autenticação Projeto Crescer',
+          html: `<p>Olá ${novoFuncionario.nome}</p><br>
+          <p>Utilize o link abaixo para acessar sua conta pela primeira vez e definir sua senha. Não o compartilhe com ninguém.</p><br>
+          <a href="${tokenUrl}">${tokenUrl}</a>`,
+        });
+      } catch (error) {
+        console.error('Erro ao enviar e-mail:', {
+          to: novoFuncionario.email,
+          from: process.env.EMAIL_SENDER,
+          tokenUrl,
+          error,
+        });
+      }
 
-    const token = randomUUID();
-
-    await this.prisma.token.create({
-      data: {
-        valor: token,
-        tipo: 'primeiro_acesso',
-        funcionarioId: novoFuncionario.id_funcionario,
-      },
+      return novoFuncionario;
     });
-    const tokenUrl = `${process.env.FRONT_URL}/auth/criar-senha?token=${token}`;
-    await this.mailerService.sendMail({
-      to: novoFuncionario.email,
-      subject: 'Autenticação Projeto Crescer',
-      html: `<p>Olá ${novoFuncionario.nome}</p><br>
-       <p>Utilize o link abaixo para acessar sua conta pela primeira vez e definir sua senha. Não o compartilhe com ninguém.</p><br>
-       <a href="${tokenUrl}">${tokenUrl}</a>`,
-    });
-    return novoFuncionario;
   }
 
   async findAll(query: PaginationQueryDto) {
@@ -146,6 +160,7 @@ export class FuncionarioService {
       },
       data: {
         excluido_em: new Date(),
+        ativo: false,
       },
     });
   }
@@ -193,5 +208,19 @@ export class FuncionarioService {
     });
 
     return { sucesso: true };
+  }
+
+  async findProfessores() {
+    return this.prisma.funcionario.findMany({
+      where: {
+        perfil: {
+          nome: 'Professor',
+        },
+        ativo: true,
+      },
+      include: {
+        perfil: true,
+      },
+    });
   }
 }

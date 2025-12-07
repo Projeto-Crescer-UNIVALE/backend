@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  output = "../generated/prisma"
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -29,7 +29,8 @@ model Aluno {
   ativo                  Boolean  @map("ativo")
 
   programaSocial ProgramaSocial[]
-  diarios                Diario[]
+  diarios        Diario[]
+  oficinas       AlunoOficina[]
 
   criado_em     DateTime  @default(now())
   atualizado_em DateTime  @updatedAt
@@ -40,7 +41,7 @@ model Aluno {
 
 model ProgramaSocial {
   id_programa_social Int    @id @default(autoincrement())
-  nome               String @map("nome") @db.VarChar(300) @unique
+  nome               String @unique @map("nome") @db.VarChar(300)
 
   alunos Aluno[]
 
@@ -56,29 +57,31 @@ model Funcionario {
   telefone       String  @map("telefone") @db.VarChar(15)
   ativo          Boolean @map("ativo")
 
-  perfil         Perfil      @relation(fields: [id_perfil], references: [id_perfil])
-  Sessao         Sessao[]
-  oficinas       Oficina[]
-  diarios        Diario[]
-  tokens         Token[]  
+  perfil   Perfil    @relation(fields: [id_perfil], references: [id_perfil])
+  Sessao   Sessao[]
+  oficinas Oficina[]
+  diarios  Diario[]
+  tokens   Token[]
 
   criado_em     DateTime  @default(now())
   atualizado_em DateTime  @updatedAt
   excluido_em   DateTime?
+
   @@map("funcionario")
 }
 
 model Token {
-  id_token     Int          @id @default(autoincrement())
-  valor        String       @db.VarChar(255) @unique 
-  tipo         String       @db.VarChar(50)
-  usado_em     DateTime?
-  ativo        Boolean      @default(true)
+  id_token      Int         @id @default(autoincrement())
+  valor         String      @unique @db.VarChar(255)
+  tipo          String      @db.VarChar(50)
+  usado_em      DateTime?
+  ativo         Boolean     @default(true)
   funcionarioId Int
-  funcionario  Funcionario  @relation(fields: [funcionarioId], references: [id_funcionario])
+  funcionario   Funcionario @relation(fields: [funcionarioId], references: [id_funcionario])
 
   @@map("token")
 }
+
 enum TokenTipo {
   primeiro_acesso
   redefinicao_senha
@@ -86,7 +89,7 @@ enum TokenTipo {
 
 model Perfil {
   id_perfil Int    @id @default(autoincrement()) @map("id_perfil")
-  nome      String @map("nome") @db.VarChar(300) @unique
+  nome      String @unique @map("nome") @db.VarChar(300)
 
   funcionarios Funcionario[]
 
@@ -106,48 +109,62 @@ model Sessao {
 }
 
 model Oficina {
-  id_oficina     Int          @id @default(autoincrement())
+  id_oficina     Int                 @id @default(autoincrement())
   id_funcionario Int
-  nome           String       @db.VarChar(50) @unique
-  descricao      String       @db.VarChar(300)
-  status         Boolean      @db.TinyInt
-  funcionario    Funcionario  @relation(fields: [id_funcionario], references: [id_funcionario])
+  nome           String              @unique @db.VarChar(50)
+  descricao      String              @db.VarChar(300)
+  status         Boolean             @db.TinyInt
+  funcionario    Funcionario         @relation(fields: [id_funcionario], references: [id_funcionario])
   cronograma     OficinaCronograma[]
-  criado_em      DateTime     @default(now())
-  atualizado_em  DateTime     @updatedAt
+  criado_em      DateTime            @default(now())
+  atualizado_em  DateTime            @updatedAt
   excluido_em    DateTime?
-  diarios        Diario[] 
+  diarios        Diario[]
+  alunos         AlunoOficina[]
 
   @@map("oficina")
 }
 
 model OficinaCronograma {
-  id_oficina     Int
-  dia            Int
-  hora_inicio    DateTime @db.Time(0)
-  hora_fim       DateTime @db.Time(0)
-  oficina        Oficina  @relation(fields: [id_oficina], references: [id_oficina], onDelete: Cascade)
-  
+  id_oficina  Int
+  dia         Int
+  hora_inicio DateTime @db.Time(0)
+  hora_fim    DateTime @db.Time(0)
+  oficina     Oficina  @relation(fields: [id_oficina], references: [id_oficina], onDelete: Cascade)
 
-  @@map("oficina_dias")
   @@unique([id_oficina, dia], name: "id_oficina_cronograma")
+  @@map("oficina_dias")
 }
 
 model Diario {
+  id_diario  Int  @id @default(autoincrement()) @map("id_diario")
+  id_aluno   Int  @map("id_aluno")
+  id_oficina Int? @map("id_oficina")
+  id_autor   Int  @map("id_autor")
+
+  conteudo String @map("conteudo") @db.VarChar(300)
+
+  criado_em     DateTime  @default(now())
+  atualizado_em DateTime  @updatedAt
+  excluido_em   DateTime?
+
+  autor   Funcionario @relation(fields: [id_autor], references: [id_funcionario])
+  aluno   Aluno       @relation(fields: [id_aluno], references: [id_aluno])
+  oficina Oficina?    @relation(fields: [id_oficina], references: [id_oficina]) //  reativado relacionamento
+
   @@map("diario")
+}
 
-  id_diario     Int          @id @default(autoincrement()) @map("id_diario")
-  id_aluno      Int          @map("id_aluno")
-  id_oficina    Int?         @map("id_oficina")
-  id_autor      Int          @map("id_autor")
+model AlunoOficina {
+  id_aluno       Int
+  id_oficina     Int
+  data_inscricao DateTime  @default(now()) @map("data_inscricao")
+  data_saida     DateTime? @map("data_saida")
+  ativo          Boolean   @default(true) @map("ativo")
 
-  conteudo      String       @db.VarChar(300) @map("conteudo")
-  
-  criado_em     DateTime     @default(now())       
-  atualizado_em DateTime     @updatedAt            
-  excluido_em   DateTime?                          
+  aluno   Aluno   @relation(fields: [id_aluno], references: [id_aluno], onDelete: Cascade)
+  oficina Oficina @relation(fields: [id_oficina], references: [id_oficina], onDelete: Cascade)
 
-  autor         Funcionario  @relation(fields: [id_autor], references: [id_funcionario])
-  aluno         Aluno        @relation(fields: [id_aluno], references: [id_aluno])
-  oficina       Oficina?     @relation(fields: [id_oficina], references: [id_oficina]) //  reativado relacionamento
+  @@id([id_aluno, id_oficina])
+  @@map("aluno_oficina")
 }
