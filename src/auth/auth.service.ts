@@ -157,14 +157,24 @@ export class AuthService {
       },
     });
 
-    const tokenUrl = `${process.env.FRONT_URL}/auth/recuperar-senha?token=${tokenValor}`;
-    await this.mailerService.sendMail({
-      to: funcionario.email,
-      subject: 'Recuperação de Senha Projeto Crescer',
-      html: `<p>Olá ${funcionario.nome}</p><br>
-       <p>Utilize o link abaixo para recuperar a sua senha e redefiní-la. Não o compartilhe com ninguém.</p><br>
-       <a href="${tokenUrl}">${tokenUrl}</a>`,
-    });
+    const tokenUrl = `${process.env.FRONT_URL}/reset-password/${tokenValor}`;
+
+    try {
+      await this.mailerService.sendMail({
+        to: funcionario.email,
+        from: process.env.EMAIL_SENDER,
+        subject: 'Recuperação de Senha Projeto Crescer',
+        html: `<p>Olá ${funcionario.nome}</p><br>
+         <p>Utilize o link abaixo para recuperar a sua senha e redefiní-la. Não o compartilhe com ninguém.</p><br>
+         <a href="${tokenUrl}">${tokenUrl}</a>`,
+      });
+    } catch (error) {
+      console.error('Erro ao enviar e-mail:', {
+        to: funcionario.email,
+        from: process.env.EMAIL_SENDER,
+        error,
+      });
+    }
   }
 
   async alterarSenha(id_funcionario: number, alterarSenhaDto: AlterarSenhaDto) {

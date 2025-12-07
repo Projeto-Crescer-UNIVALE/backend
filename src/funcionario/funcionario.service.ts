@@ -57,7 +57,7 @@ export class FuncionarioService {
           funcionarioId: novoFuncionario.id_funcionario,
         },
       });
-      const tokenUrl = `${process.env.FRONT_URL}/auth/criar-senha?token=${token}`;
+      const tokenUrl = `${process.env.FRONT_URL}/create-password/${token}`;
       
       try {
         await this.mailerService.sendMail({
@@ -76,7 +76,7 @@ export class FuncionarioService {
           error,
         });
       }
-      
+
       return novoFuncionario;
     });
   }
